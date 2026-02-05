@@ -1,12 +1,16 @@
 require('dotenv').config();
 const express = require('express');
 const healthRoutes = require('./src/routes/healthRoutes');
+const authRoutes = require('./src/routes/authRoutes');
+const productRoutes = require('./src/routes/productRoutes');
 const { connect } = require('./src/db');
 
 const app = express();
 
 app.use(express.json());
 app.use(healthRoutes);
+app.use('/auth', authRoutes);
+app.use('/products', productRoutes);
 
 // 404 — consistent JSON
 app.use((req, res) => {
