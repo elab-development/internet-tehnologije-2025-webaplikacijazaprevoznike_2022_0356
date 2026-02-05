@@ -2,7 +2,7 @@ import React from 'react';
 
 const ImporterPage = () => {
   return (
-    <div>
+    <div className="page">
       <h1>Importer Dashboard</h1>
       <p>Welcome, Importer. Manage your containers and collaborations here.</p>
     </div>

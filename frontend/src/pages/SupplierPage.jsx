@@ -2,7 +2,7 @@ import React from 'react';
 
 const SupplierPage = () => {
   return (
-    <div>
+    <div className="page">
       <h1>Supplier Dashboard</h1>
       <p>Welcome, Supplier. Manage your products and collaborations here.</p>
     </div>
