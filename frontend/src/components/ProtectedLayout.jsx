@@ -10,19 +10,13 @@ const ProtectedLayout = ({ children }) => {
   const { userRole } = useAuth();
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div className="app-layout">
       <NavBar userRole={userRole} />
-      <main style={{ flex: 1, padding: '2rem', backgroundColor: '#f5f5f5' }}>
+      <main className="app-main">
         {children}
       </main>
-      <footer style={{ 
-        padding: '1rem', 
-        borderTop: '1px solid #ccc', 
-        backgroundColor: 'white',
-        textAlign: 'center',
-        color: '#666'
-      }}>
-        <p style={{ margin: 0 }}>&copy; 2026 University Project</p>
+      <footer className="app-footer">
+        <p>&copy; 2026</p>
       </footer>
     </div>
   );
