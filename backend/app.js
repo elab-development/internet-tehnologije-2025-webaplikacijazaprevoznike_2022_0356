@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const path = require('path');
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 const healthRoutes = require('./src/routes/healthRoutes');
@@ -7,6 +8,9 @@ const authRoutes = require('./src/routes/authRoutes');
 const categoryRoutes = require('./src/routes/categoryRoutes');
 const collaborationRoutes = require('./src/routes/collaborationRoutes');
 const productRoutes = require('./src/routes/productRoutes');
+const importerRoutes = require('./src/routes/importerRoutes');
+const containerRoutes = require('./src/routes/containerRoutes');
+const compareRoutes = require('./src/routes/compareRoutes');
 const openapiConfig = require('./openapi.config.js');
 const { connect } = require('./src/db');
 
@@ -18,10 +22,13 @@ app.use('/auth', authRoutes);
 app.use('/categories', categoryRoutes);
 app.use('/collaborations', collaborationRoutes);
 app.use('/products', productRoutes);
+app.use('/importer', importerRoutes);
+app.use('/containers', containerRoutes);
+app.use('/compare', compareRoutes);
 
 const swaggerSpec = swaggerJsdoc({
   definition: openapiConfig,
-  apis: [],
+  apis: [path.join(__dirname, 'src/routes/*.js')],
 });
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 

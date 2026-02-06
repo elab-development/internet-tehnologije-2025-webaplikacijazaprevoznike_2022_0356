@@ -78,6 +78,152 @@ module.exports = {
           code: { type: 'string' },
         },
       },
+      LimitExceededError: {
+        allOf: [
+          { $ref: '#/components/schemas/ErrorBody' },
+          {
+            type: 'object',
+            properties: {
+              limit: { type: 'string', enum: ['maxWeight', 'maxVolume', 'maxPrice'] },
+              max: { type: 'number' },
+              attempted: { type: 'number' },
+            },
+          },
+        ],
+      },
+      Product: {
+        type: 'object',
+        properties: {
+          id: { type: 'integer' },
+          supplierId: { type: 'integer' },
+          categoryId: { type: 'integer' },
+          code: { type: 'string' },
+          name: { type: 'string' },
+          description: { type: 'string' },
+          imageUrl: { type: ['string', 'null'] },
+          price: { type: 'number' },
+          weight: { type: 'number' },
+          length: { type: 'number' },
+          width: { type: 'number' },
+          height: { type: 'number' },
+          createdAt: { type: 'string', format: 'date-time' },
+        },
+      },
+      ProductListItem: {
+        allOf: [
+          { $ref: '#/components/schemas/Product' },
+          {
+            type: 'object',
+            properties: {
+              categoryName: { type: 'string' },
+              supplierEmail: { type: 'string' },
+              supplierName: { type: 'string' },
+            },
+          },
+        ],
+      },
+      ProductCreateBody: {
+        type: 'object',
+        required: ['code', 'name', 'price', 'weight', 'length', 'width', 'height', 'description', 'categoryId'],
+        properties: {
+          code: { type: 'string' },
+          name: { type: 'string' },
+          price: { type: 'number' },
+          weight: { type: 'number' },
+          length: { type: 'number' },
+          width: { type: 'number' },
+          height: { type: 'number' },
+          description: { type: 'string' },
+          imageUrl: { type: 'string', nullable: true },
+          categoryId: { type: 'integer' },
+        },
+      },
+      ProductUpdateBody: {
+        type: 'object',
+        properties: {
+          code: { type: 'string' },
+          name: { type: 'string' },
+          price: { type: 'number' },
+          weight: { type: 'number' },
+          length: { type: 'number' },
+          width: { type: 'number' },
+          height: { type: 'number' },
+          description: { type: 'string' },
+          imageUrl: { type: 'string', nullable: true },
+          categoryId: { type: 'integer' },
+        },
+      },
+      Container: {
+        type: 'object',
+        properties: {
+          id: { type: 'integer' },
+          importerId: { type: 'integer' },
+          name: { type: 'string' },
+          createdAt: { type: 'string', format: 'date-time' },
+        },
+      },
+      ContainerCreateBody: {
+        type: 'object',
+        required: ['name'],
+        properties: {
+          name: { type: 'string' },
+          maxWeight: { type: 'number' },
+          maxVolume: { type: 'number' },
+          maxPrice: { type: 'number' },
+        },
+      },
+      ContainerItem: {
+        type: 'object',
+        properties: {
+          id: { type: 'integer' },
+          containerId: { type: 'integer' },
+          productId: { type: 'integer' },
+          quantity: { type: 'integer' },
+        },
+      },
+      ContainerAddItemBody: {
+        type: 'object',
+        required: ['productId', 'quantity'],
+        properties: {
+          productId: { type: 'integer' },
+          quantity: { type: 'integer', minimum: 1 },
+        },
+      },
+      ContainerWithItems: {
+        allOf: [
+          { $ref: '#/components/schemas/Container' },
+          {
+            type: 'object',
+            properties: {
+              items: {
+                type: 'array',
+                items: { $ref: '#/components/schemas/ContainerItem' },
+              },
+              totalPrice: { type: 'number' },
+              totalWeight: { type: 'number' },
+              totalVolume: { type: 'number' },
+            },
+          },
+        ],
+      },
+      SupplierInfo: {
+        type: 'object',
+        properties: {
+          id: { type: 'integer' },
+          name: { type: 'string' },
+          email: { type: 'string' },
+        },
+      },
+      CompareGroup: {
+        type: 'object',
+        properties: {
+          supplier: { $ref: '#/components/schemas/SupplierInfo' },
+          products: {
+            type: 'array',
+            items: { $ref: '#/components/schemas/Product' },
+          },
+        },
+      },
     },
   },
   paths: {
