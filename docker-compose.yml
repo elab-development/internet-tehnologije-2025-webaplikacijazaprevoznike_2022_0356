@@ -11,5 +11,17 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
+  backend:
+    build: ./backend
+    container_name: uvoznici_backend
+    environment:
+      PORT: 4000
+      DATABASE_URL: postgresql://app:app@db:5432/uvoznici
+      JWT_SECRET: your-secret-key-change-in-production
+    ports:
+      - "4000:4000"
+    depends_on:
+      - db
+
 volumes:
   pgdata:
