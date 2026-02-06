@@ -54,12 +54,16 @@ model Category {
 
 model Product {
   id         Int      @id @default(autoincrement())
+  // Unique product code per supplier (e.g. SKU)
+  code       String
   name       String
   price      Decimal  @db.Decimal(10, 2)
   weight     Float    // in kg
   length     Float    // in cm
   width      Float    // in cm
   height     Float    // in cm
+  description String
+  imageUrl    String?
   
   categoryId Int
   category   Category @relation(fields: [categoryId], references: [id])
@@ -71,6 +75,8 @@ model Product {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([supplierId, code])
 }
 
 model Collaboration {
