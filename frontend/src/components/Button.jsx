@@ -25,54 +25,54 @@ const Button = ({
   className = '',
   ...props
 }) => {
-  // Variant styles
+  // Variant styles – minimal palette
   const variantStyles = {
     primary: {
-      backgroundColor: '#007bff',
-      color: 'white',
+      backgroundColor: '#475569',
+      color: '#fff',
       border: 'none',
-      hoverBackgroundColor: '#0056b3',
-      disabledBackgroundColor: '#6c757d',
+      hoverBackgroundColor: '#334155',
+      disabledBackgroundColor: '#cbd5e1',
     },
     secondary: {
-      backgroundColor: '#6c757d',
-      color: 'white',
+      backgroundColor: '#64748b',
+      color: '#fff',
       border: 'none',
-      hoverBackgroundColor: '#545b62',
-      disabledBackgroundColor: '#adb5bd',
+      hoverBackgroundColor: '#475569',
+      disabledBackgroundColor: '#cbd5e1',
     },
     danger: {
-      backgroundColor: '#dc3545',
-      color: 'white',
+      backgroundColor: '#b91c1c',
+      color: '#fff',
       border: 'none',
-      hoverBackgroundColor: '#c82333',
-      disabledBackgroundColor: '#e0a0a5',
+      hoverBackgroundColor: '#991b1b',
+      disabledBackgroundColor: '#fecaca',
     },
     outline: {
       backgroundColor: 'transparent',
-      color: '#007bff',
-      border: '1px solid #007bff',
-      hoverBackgroundColor: '#007bff',
-      hoverColor: 'white',
+      color: '#475569',
+      border: '1px solid #e2e8f0',
+      hoverBackgroundColor: '#f1f5f9',
+      hoverColor: '#0f172a',
       disabledBackgroundColor: 'transparent',
-      disabledColor: '#6c757d',
-      disabledBorder: '#6c757d',
+      disabledColor: '#94a3b8',
+      disabledBorder: '#e2e8f0',
     },
   };
 
-  // Size styles
+  // Size styles – compact
   const sizeStyles = {
     small: {
       padding: '0.375rem 0.75rem',
-      fontSize: '0.875rem',
+      fontSize: '0.8125rem',
     },
     medium: {
       padding: '0.5rem 1rem',
-      fontSize: '1rem',
+      fontSize: '0.875rem',
     },
     large: {
-      padding: '0.75rem 1.5rem',
-      fontSize: '1.125rem',
+      padding: '0.625rem 1.25rem',
+      fontSize: '0.9375rem',
     },
   };
 
