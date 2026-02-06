@@ -4,6 +4,9 @@ const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 const healthRoutes = require('./src/routes/healthRoutes');
 const authRoutes = require('./src/routes/authRoutes');
+const categoryRoutes = require('./src/routes/categoryRoutes');
+const collaborationRoutes = require('./src/routes/collaborationRoutes');
+const productRoutes = require('./src/routes/productRoutes');
 const openapiConfig = require('./openapi.config.js');
 const { connect } = require('./src/db');
 
@@ -12,6 +15,9 @@ const app = express();
 app.use(express.json());
 app.use(healthRoutes);
 app.use('/auth', authRoutes);
+app.use('/categories', categoryRoutes);
+app.use('/collaborations', collaborationRoutes);
+app.use('/products', productRoutes);
 
 const swaggerSpec = swaggerJsdoc({
   definition: openapiConfig,
