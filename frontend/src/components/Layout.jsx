@@ -8,6 +8,8 @@ const Layout = () => {
         <nav>
           <ul style={{ display: 'flex', listStyle: 'none', gap: '1rem', margin: 0, padding: 0 }}>
             <li><Link to="/login">Login</Link></li>
+            <li><Link to="/dashboard">Dashboard</Link></li>
+            <li><Link to="/products">Products</Link></li>
             <li><Link to="/admin">Admin</Link></li>
             <li><Link to="/supplier">Supplier</Link></li>
             <li><Link to="/importer">Importer</Link></li>
