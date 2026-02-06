@@ -20,19 +20,12 @@ const AdminPage = () => {
   }
 
   return (
-<<<<<<< HEAD
     <ProtectedLayout>
       <div className="page" style={{ backgroundColor: 'white', padding: '2rem', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
         <h1>Admin Dashboard</h1>
         <p>Welcome, Admin. Here you can manage the system.</p>
       </div>
     </ProtectedLayout>
-=======
-    <div className="page">
-      <h1>Admin Dashboard</h1>
-      <p>Welcome, Admin. Here you can manage the system.</p>
-    </div>
->>>>>>> 48c0c5ab95f1574c7bfb081b48d4993525c0573e
   );
 };
 

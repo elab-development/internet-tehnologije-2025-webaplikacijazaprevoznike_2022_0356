@@ -20,19 +20,12 @@ const SupplierPage = () => {
   }
 
   return (
-<<<<<<< HEAD
     <ProtectedLayout>
       <div className="page" style={{ backgroundColor: 'white', padding: '2rem', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
         <h1>Supplier Dashboard</h1>
         <p>Welcome, Supplier. Manage your products and collaborations here.</p>
       </div>
     </ProtectedLayout>
-=======
-    <div className="page">
-      <h1>Supplier Dashboard</h1>
-      <p>Welcome, Supplier. Manage your products and collaborations here.</p>
-    </div>
->>>>>>> 48c0c5ab95f1574c7bfb081b48d4993525c0573e
   );
 };
 

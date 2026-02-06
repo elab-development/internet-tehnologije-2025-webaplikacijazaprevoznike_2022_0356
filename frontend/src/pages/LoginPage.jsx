@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import Button from '../components/Button';
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('admin');
+  const successMessage = location.state?.message;
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -31,7 +33,11 @@ const LoginPage = () => {
     <div className="page">
       <h1>Login Page</h1>
       <p>Please log in to access your dashboard.</p>
-      
+      {successMessage && (
+        <p style={{ color: '#155724', backgroundColor: '#d4edda', padding: '0.75rem', borderRadius: '6px', marginBottom: '1rem' }}>
+          {successMessage}
+        </p>
+      )}
       <form onSubmit={handleLogin} style={{ 
         marginTop: '2rem', 
         maxWidth: '450px',
@@ -87,6 +93,10 @@ const LoginPage = () => {
         >
           Login
         </Button>
+
+        <p style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+          Don&apos;t have an account? <Link to="/register">Register</Link>
+        </p>
       </form>
     </div>
   );

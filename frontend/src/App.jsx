@@ -4,6 +4,7 @@ import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
 import PublicRoute from './components/PublicRoute';
 import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import ProductsPage from './pages/ProductsPage';
 import ContainerBuilderPage from './pages/ContainerBuilderPage';
@@ -23,6 +24,14 @@ function App() {
             element={
               <PublicRoute>
                 <LoginPage />
+              </PublicRoute>
+            } 
+          />
+          <Route 
+            path="register" 
+            element={
+              <PublicRoute>
+                <RegisterPage />
               </PublicRoute>
             } 
           />
