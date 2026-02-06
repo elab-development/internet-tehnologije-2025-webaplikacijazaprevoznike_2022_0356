@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import ProtectedLayout from '../components/ProtectedLayout';
+import Button from '../components/Button';
 
 const ProductsPage = () => {
   const [products] = useState([
@@ -32,6 +33,14 @@ const ProductsPage = () => {
     });
   }, [products, filterCategory, filterStock, searchTerm]);
 
+  const hasActiveFilters = filterCategory !== 'all' || filterStock !== 'all' || searchTerm !== '';
+
+  const handleClearFilters = () => {
+    setFilterCategory('all');
+    setFilterStock('all');
+    setSearchTerm('');
+  };
+
   return (
     <ProtectedLayout>
       <div className="page" style={{ backgroundColor: 'white', padding: '2rem', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
@@ -48,6 +57,17 @@ const ProductsPage = () => {
         flexDirection: 'column',
         gap: '1rem'
       }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h2 style={{ margin: 0 }}>Filters</h2>
+          <Button
+            onClick={handleClearFilters}
+            variant="outline"
+            size="small"
+            disabled={!hasActiveFilters}
+          >
+            Clear Filters
+          </Button>
+        </div>
         <div>
           <label htmlFor="search" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
             Search:

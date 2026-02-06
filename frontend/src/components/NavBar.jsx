@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import Button from './Button';
 
 const NavBar = ({ userRole }) => {
   const navigate = useNavigate();
@@ -111,23 +112,13 @@ const NavBar = ({ userRole }) => {
         }}>
           Role: <strong>{role.charAt(0).toUpperCase() + role.slice(1)}</strong>
         </span>
-        <button
+        <Button
           onClick={handleLogout}
-          style={{
-            padding: '0.5rem 1rem',
-            backgroundColor: '#dc3545',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontSize: '0.9rem',
-            fontWeight: 'bold'
-          }}
-          onMouseEnter={(e) => e.target.style.backgroundColor = '#c82333'}
-          onMouseLeave={(e) => e.target.style.backgroundColor = '#dc3545'}
+          variant="danger"
+          size="small"
         >
           Logout
-        </button>
+        </Button>
       </div>
     </nav>
   );

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Button from '../components/Button';
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -97,22 +98,14 @@ const LoginPage = () => {
           </select>
         </div>
 
-        <button
+        <Button
           type="submit"
-          style={{
-            width: '100%',
-            padding: '0.75rem',
-            backgroundColor: '#007bff',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            fontSize: '1rem',
-            cursor: 'pointer',
-            fontWeight: 'bold'
-          }}
+          variant="primary"
+          fullWidth
+          disabled={!username || !password}
         >
           Login
-        </button>
+        </Button>
       </form>
     </div>
   );

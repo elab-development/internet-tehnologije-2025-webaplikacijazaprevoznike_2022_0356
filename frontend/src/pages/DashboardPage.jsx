@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import ProtectedLayout from '../components/ProtectedLayout';
 import { useAuth } from '../hooks/useAuth';
+import Button from '../components/Button';
 
 const DashboardPage = () => {
   const navigate = useNavigate();
@@ -64,20 +65,14 @@ const DashboardPage = () => {
           <h2>Quick Actions</h2>
           <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
             {content.actions.map((action, index) => (
-              <button
+              <Button
                 key={index}
                 onClick={action.onClick}
-                style={{
-                  padding: '0.75rem 1.5rem',
-                  backgroundColor: '#007bff',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer'
-                }}
+                variant="primary"
+                size="large"
               >
                 {action.label}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
