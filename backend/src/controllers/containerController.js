@@ -1,5 +1,27 @@
 const { prisma } = require('../db');
 
+function productVolumeM3(p) {
+  // Product dimensions are stored in cm; convert cm^3 -> m^3 (1 m^3 = 1,000,000 cm^3)
+  return (Number(p.length) * Number(p.width) * Number(p.height)) / 1_000_000;
+}
+
+function calculateTotals(itemsWithProducts) {
+  let totalPrice = 0;
+  let totalWeight = 0;
+  let totalVolume = 0;
+
+  for (const item of itemsWithProducts) {
+    const qty = Number(item.quantity);
+    const p = item.product;
+    if (!p) continue;
+    totalPrice += Number(p.price) * qty;
+    totalWeight += Number(p.weight) * qty;
+    totalVolume += productVolumeM3(p) * qty;
+  }
+
+  return { totalPrice, totalWeight, totalVolume };
+}
+
 function toContainerJson(c) {
   return {
     id: c.id,
@@ -53,14 +75,25 @@ async function addItem(req, res, next) {
     const parsedProductId = Number(productId);
     const parsedQty = Number(quantity);
 
-    if (!parsedProductId || !Number.isFinite(parsedQty) || parsedQty <= 0) {
+    if (!parsedProductId || !Number.isFinite(parsedQty) || parsedQty <= 0 || !Number.isInteger(parsedQty)) {
       return res.status(400).json({
-        message: 'productId and quantity (> 0) are required',
+        message: 'productId and quantity (integer > 0) are required',
         code: 'VALIDATION_ERROR',
       });
     }
 
-    const container = await prisma.container.findUnique({ where: { id: containerId } });
+    const container = await prisma.container.findUnique({
+      where: { id: containerId },
+      include: {
+        items: {
+          include: {
+            product: {
+              select: { id: true, supplierId: true, price: true, weight: true, length: true, width: true, height: true },
+            },
+          },
+        },
+      },
+    });
     if (!container) {
       return res.status(404).json({ message: 'Container not found', code: 'NOT_FOUND' });
     }
@@ -70,7 +103,7 @@ async function addItem(req, res, next) {
 
     const product = await prisma.product.findUnique({
       where: { id: parsedProductId },
-      select: { id: true, supplierId: true },
+      select: { id: true, supplierId: true, price: true, weight: true, length: true, width: true, height: true },
     });
     if (!product) {
       return res.status(404).json({ message: 'Product not found', code: 'NOT_FOUND' });
@@ -88,9 +121,47 @@ async function addItem(req, res, next) {
       });
     }
 
-    const existing = await prisma.containerItem.findFirst({
-      where: { containerId, productId: parsedProductId },
+    // Validate container limits using prospective totals after adding items.
+    const prospectiveItems = container.items.map((i) => {
+      if (i.productId !== parsedProductId) return i;
+      return { ...i, quantity: i.quantity + parsedQty };
     });
+
+    const existing = container.items.find((i) => i.productId === parsedProductId);
+    const itemsWithProducts = existing
+      ? prospectiveItems
+      : [...prospectiveItems, { id: 0, containerId, productId: parsedProductId, quantity: parsedQty, product }];
+
+    const totals = calculateTotals(itemsWithProducts);
+    const maxPrice = Number(container.maxPrice);
+
+    if (totals.totalWeight > container.maxWeight) {
+      return res.status(400).json({
+        message: 'Container max weight exceeded',
+        code: 'LIMIT_EXCEEDED',
+        limit: 'maxWeight',
+        max: container.maxWeight,
+        attempted: totals.totalWeight,
+      });
+    }
+    if (totals.totalVolume > container.maxVolume) {
+      return res.status(400).json({
+        message: 'Container max volume exceeded',
+        code: 'LIMIT_EXCEEDED',
+        limit: 'maxVolume',
+        max: container.maxVolume,
+        attempted: totals.totalVolume,
+      });
+    }
+    if (Number.isFinite(maxPrice) && totals.totalPrice > maxPrice) {
+      return res.status(400).json({
+        message: 'Container max price exceeded',
+        code: 'LIMIT_EXCEEDED',
+        limit: 'maxPrice',
+        max: maxPrice,
+        attempted: totals.totalPrice,
+      });
+    }
 
     const item = existing
       ? await prisma.containerItem.update({
@@ -121,7 +192,13 @@ async function getById(req, res, next) {
     const container = await prisma.container.findUnique({
       where: { id },
       include: {
-        items: true,
+        items: {
+          include: {
+            product: {
+              select: { id: true, price: true, weight: true, length: true, width: true, height: true },
+            },
+          },
+        },
       },
     });
 
@@ -132,9 +209,12 @@ async function getById(req, res, next) {
       return res.status(403).json({ message: 'Forbidden', code: 'FORBIDDEN' });
     }
 
+    const totals = calculateTotals(container.items);
+
     return res.json({
       ...toContainerJson(container),
       items: container.items.map(toItemJson),
+      ...totals,
     });
   } catch (e) {
     return next(e);
