@@ -1,12 +1,47 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import ProtectedLayout from '../components/ProtectedLayout';
 import { useAuth } from '../hooks/useAuth';
 import Button from '../components/Button';
 
 const DashboardPage = () => {
   const navigate = useNavigate();
-  const { userRole } = useAuth();
+  const location = useLocation();
+  const { userRole, isAuthenticated } = useAuth();
+
+  // Role-based redirects using useEffect + useNavigate
+  useEffect(() => {
+    if (!isAuthenticated) {
+      return; // ProtectedRoute will handle redirect
+    }
+
+    // If role is not set, redirect to login
+    if (!userRole) {
+      navigate('/login', { replace: true });
+      return;
+    }
+
+    // Role-specific redirects based on user's role
+    // This allows custom logic for different roles
+    const roleRedirects = {
+      supplier: {
+        // Suppliers might want to go directly to products
+        // Uncomment if needed: navigate('/products', { replace: true });
+      },
+      importer: {
+        // Importers might want to go directly to products
+        // Uncomment if needed: navigate('/products', { replace: true });
+      },
+      admin: {
+        // Admins stay on dashboard
+      }
+    };
+
+    // Apply role-specific redirect if defined
+    if (roleRedirects[userRole]) {
+      // Role-specific logic can be added here
+    }
+  }, [userRole, isAuthenticated, navigate]);
 
   const roleContent = {
     admin: {

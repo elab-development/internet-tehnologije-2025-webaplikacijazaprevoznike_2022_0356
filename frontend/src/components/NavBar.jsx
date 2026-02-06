@@ -1,10 +1,12 @@
 import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import Button from './Button';
+import { useAuth } from '../hooks/useAuth';
 
 const NavBar = ({ userRole }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { logout } = useAuth();
   
   // Get role from prop, localStorage, or default to 'admin'
   const role = userRole || localStorage.getItem('userRole') || 'admin';
@@ -31,7 +33,7 @@ const NavBar = ({ userRole }) => {
   const links = roleLinks[role] || roleLinks.admin;
 
   const handleLogout = () => {
-    localStorage.removeItem('userRole');
+    logout();
     navigate('/login');
   };
 

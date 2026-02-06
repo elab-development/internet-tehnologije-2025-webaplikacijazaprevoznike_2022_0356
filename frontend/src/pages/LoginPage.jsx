@@ -13,7 +13,11 @@ const LoginPage = () => {
     
     // Simple validation
     if (username && password) {
-      // Store role in localStorage for DashboardPage
+      // Generate mock token (in real app, this would come from API)
+      const mockToken = `mock_token_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
+      // Save token and role in localStorage
+      localStorage.setItem('authToken', mockToken);
       localStorage.setItem('userRole', role);
       
       // Navigate to dashboard with role
