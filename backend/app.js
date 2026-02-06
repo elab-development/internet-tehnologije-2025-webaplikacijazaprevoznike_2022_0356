@@ -1,7 +1,10 @@
 require('dotenv').config();
 const express = require('express');
+const swaggerJsdoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
 const healthRoutes = require('./src/routes/healthRoutes');
 const authRoutes = require('./src/routes/authRoutes');
+const openapiConfig = require('./openapi.config.js');
 const { connect } = require('./src/db');
 
 const app = express();
@@ -9,6 +12,12 @@ const app = express();
 app.use(express.json());
 app.use(healthRoutes);
 app.use('/auth', authRoutes);
+
+const swaggerSpec = swaggerJsdoc({
+  definition: openapiConfig,
+  apis: [],
+});
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // 404 — consistent JSON
 app.use((req, res) => {
