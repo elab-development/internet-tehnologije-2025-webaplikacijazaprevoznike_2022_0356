@@ -68,9 +68,17 @@ async function login(req, res, next) {
         code: 'INVALID_CREDENTIALS',
       });
     }
+    const secret = process.env.JWT_SECRET;
+    if (!secret || (typeof secret === 'string' && !secret.trim())) {
+      console.error('Login failed: JWT_SECRET is not set in environment');
+      return res.status(500).json({
+        message: 'Server configuration error',
+        code: 'SERVER_CONFIG',
+      });
+    }
     const token = jwt.sign(
       { id: user.id, role: user.role },
-      process.env.JWT_SECRET,
+      secret,
       { expiresIn: '7d' }
     );
     return res.json({

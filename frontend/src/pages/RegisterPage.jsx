@@ -12,6 +12,13 @@ const RegisterPage = () => {
   const [role, setRole] = useState('SUPPLIER');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const getRegisterErrorMessage = (res, data) => {
+    if (res.status === 400) return 'Please fill in all required fields (email, password, name and role).';
+    if (res.status === 409 || data?.code === 'EMAIL_TAKEN') return 'An account with this email already exists.';
+    return data?.message || 'Registration failed. Please try again.';
+  };
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -29,12 +36,12 @@ const RegisterPage = () => {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setError(data.message || 'Registration failed.');
+        setError(getRegisterErrorMessage(res, data));
         return;
       }
       navigate('/login', { state: { message: 'Account created. You can log in now.' } });
     } catch (err) {
-      setError('Network error. Is the backend running?');
+      setError('Network error. Please check your connection and try again.');
     } finally {
       setLoading(false);
     }
@@ -71,13 +78,23 @@ const RegisterPage = () => {
         </div>
         <div className="form-group">
           <label htmlFor="reg-password">Password:</label>
-          <input
-            id="reg-password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter password"
-          />
+          <div className="password-input-wrap">
+            <input
+              id="reg-password"
+              type={showPassword ? 'text' : 'password'}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter password"
+            />
+            <button
+              type="button"
+              className="password-toggle"
+              onClick={() => setShowPassword((v) => !v)}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+            >
+              {showPassword ? 'Hide' : 'Show'}
+            </button>
+          </div>
         </div>
         <div className="form-group">
           <label htmlFor="reg-name">Name:</label>

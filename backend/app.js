@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const cors = require('cors');
 const path = require('path');
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
@@ -16,6 +17,7 @@ const { connect } = require('./src/db');
 
 const app = express();
 
+app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:5173' }));
 app.use(express.json());
 app.use(healthRoutes);
 app.use('/auth', authRoutes);
@@ -39,6 +41,7 @@ app.use((req, res) => {
 
 // Global error handler — consistent JSON
 app.use((err, req, res, next) => {
+  console.error('Server error:', err);
   const status = err.status ?? err.statusCode ?? 500;
   const message = err.message ?? 'Internal server error';
   const code = err.code ?? 'INTERNAL_ERROR';

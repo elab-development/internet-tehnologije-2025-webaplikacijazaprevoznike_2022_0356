@@ -2,30 +2,57 @@ import React, { useState } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import Button from '../components/Button';
 
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+
 const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('admin');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const successMessage = location.state?.message;
 
-  const handleLogin = (e) => {
+  const getLoginErrorMessage = (res, data) => {
+    if (res.status === 400) return 'Please enter email and password.';
+    if (res.status === 401) return 'Invalid email or password.';
+    if (data?.code === 'UNAUTHORIZED') return 'Invalid or expired session. Please log in again.';
+    return data?.message || 'Login failed. Please try again.';
+  };
+
+  const handleLogin = async (e) => {
     e.preventDefault();
-    
-    // Simple validation
-    if (username && password) {
-      // Generate mock token (in real app, this would come from API)
-      const mockToken = `mock_token_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      
-      // Save token and role in localStorage
-      localStorage.setItem('authToken', mockToken);
-      localStorage.setItem('userRole', role);
-      
-      // Navigate to dashboard with role
-      navigate('/dashboard', { state: { role } });
-    } else {
-      alert('Please enter username and password');
+    setError('');
+    if (!email || !password) {
+      setError('Please enter email and password.');
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(getLoginErrorMessage(res, data));
+        return;
+      }
+      const userRoleFromApi = data.user?.role;
+      if (role === 'admin' && userRoleFromApi !== 'ADMIN') {
+        setError('You do not have admin access.');
+        return;
+      }
+      localStorage.setItem('authToken', data.token);
+      localStorage.setItem('userRole', (userRoleFromApi || '').toLowerCase());
+      navigate('/dashboard', { state: { role: (userRoleFromApi || '').toLowerCase() } });
+    } catch (err) {
+      setError('Network error. Please check your connection and try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -38,6 +65,11 @@ const LoginPage = () => {
           {successMessage}
         </p>
       )}
+      {error && (
+        <p style={{ color: '#721c24', backgroundColor: '#f8d7da', padding: '0.75rem', borderRadius: '6px', marginBottom: '1rem' }}>
+          {error}
+        </p>
+      )}
       <form onSubmit={handleLogin} style={{ 
         marginTop: '2rem', 
         maxWidth: '450px',
@@ -45,15 +77,15 @@ const LoginPage = () => {
         marginRight: 'auto'
       }}>
         <div className="form-group">
-          <label htmlFor="username">
-            Username:
+          <label htmlFor="email">
+            Email:
           </label>
           <input
-            id="username"
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="Enter username"
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Enter email"
           />
         </div>
 
@@ -61,13 +93,23 @@ const LoginPage = () => {
           <label htmlFor="password">
             Password:
           </label>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter password"
-          />
+          <div className="password-input-wrap">
+            <input
+              id="password"
+              type={showPassword ? 'text' : 'password'}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter password"
+            />
+            <button
+              type="button"
+              className="password-toggle"
+              onClick={() => setShowPassword((v) => !v)}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+            >
+              {showPassword ? 'Hide' : 'Show'}
+            </button>
+          </div>
         </div>
 
         <div className="form-group">
@@ -89,9 +131,9 @@ const LoginPage = () => {
           type="submit"
           variant="primary"
           fullWidth
-          disabled={!username || !password}
+          disabled={!email || !password || loading}
         >
-          Login
+          {loading ? 'Logging in...' : 'Login'}
         </Button>
 
         <p style={{ marginTop: '1.5rem', textAlign: 'center' }}>

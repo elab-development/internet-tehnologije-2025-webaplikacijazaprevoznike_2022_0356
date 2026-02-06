@@ -15,9 +15,6 @@ const ProtectedLayout = ({ children }) => {
       <main className="app-main">
         {children}
       </main>
-      <footer className="app-footer">
-        <p>&copy; 2026</p>
-      </footer>
     </div>
   );
 };
