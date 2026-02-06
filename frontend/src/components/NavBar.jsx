@@ -26,6 +26,7 @@ const NavBar = ({ userRole }) => {
     importer: [
       { path: '/dashboard', label: 'Dashboard', icon: '📊' },
       { path: '/products', label: 'Browse Products', icon: '📦' },
+      { path: '/container-builder', label: 'Container Builder', icon: '📦' },
       { path: '/importer', label: 'My Containers', icon: '📋' },
     ],
   };

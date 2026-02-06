@@ -6,6 +6,7 @@ import PublicRoute from './components/PublicRoute';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import ProductsPage from './pages/ProductsPage';
+import ContainerBuilderPage from './pages/ContainerBuilderPage';
 import AdminPage from './pages/AdminPage';
 import SupplierPage from './pages/SupplierPage';
 import ImporterPage from './pages/ImporterPage';
@@ -38,6 +39,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <ProductsPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="container-builder" 
+            element={
+              <ProtectedRoute>
+                <ContainerBuilderPage />
               </ProtectedRoute>
             } 
           />
