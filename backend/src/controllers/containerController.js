@@ -98,7 +98,8 @@ async function addItem(req, res, next) {
       return res.status(404).json({ message: 'Container not found', code: 'NOT_FOUND' });
     }
     if (container.importerId !== req.user.id) {
-      return res.status(403).json({ message: 'Forbidden', code: 'FORBIDDEN' });
+      // Avoid leaking existence of other importers' containers
+      return res.status(404).json({ message: 'Container not found', code: 'NOT_FOUND' });
     }
 
     const product = await prisma.product.findUnique({
@@ -206,7 +207,8 @@ async function getById(req, res, next) {
       return res.status(404).json({ message: 'Container not found', code: 'NOT_FOUND' });
     }
     if (container.importerId !== req.user.id) {
-      return res.status(403).json({ message: 'Forbidden', code: 'FORBIDDEN' });
+      // Avoid leaking existence of other importers' containers
+      return res.status(404).json({ message: 'Container not found', code: 'NOT_FOUND' });
     }
 
     const totals = calculateTotals(container.items);

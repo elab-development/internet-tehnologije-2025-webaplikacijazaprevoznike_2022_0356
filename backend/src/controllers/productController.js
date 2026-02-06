@@ -45,7 +45,7 @@ async function list(req, res, next) {
       });
       return res.json(products.map(toListProduct));
     }
-    return res.status(403).json({ error: 'Forbidden' });
+    return res.status(403).json({ message: 'Forbidden', code: 'FORBIDDEN' });
   } catch (e) {
     next(e);
   }
@@ -131,7 +131,8 @@ async function update(req, res, next) {
     const product = await prisma.product.findUnique({ where: { id } });
     if (!product) return res.status(404).json({ message: 'Product not found', code: 'NOT_FOUND' });
     if (product.supplierId !== req.user.id) {
-      return res.status(403).json({ message: 'You can only update your own products', code: 'FORBIDDEN' });
+      // Avoid leaking existence of other suppliers' products
+      return res.status(404).json({ message: 'Product not found', code: 'NOT_FOUND' });
     }
     const allowed = ['code', 'name', 'price', 'weight', 'length', 'width', 'height', 'description', 'imageUrl', 'categoryId'];
     const data = {};
@@ -167,7 +168,8 @@ async function remove(req, res, next) {
     const product = await prisma.product.findUnique({ where: { id } });
     if (!product) return res.status(404).json({ message: 'Product not found', code: 'NOT_FOUND' });
     if (product.supplierId !== req.user.id) {
-      return res.status(403).json({ message: 'You can only delete your own products', code: 'FORBIDDEN' });
+      // Avoid leaking existence of other suppliers' products
+      return res.status(404).json({ message: 'Product not found', code: 'NOT_FOUND' });
     }
     await prisma.product.delete({ where: { id } });
     res.status(204).send();
