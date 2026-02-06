@@ -1,23 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import ProtectedLayout from '../components/ProtectedLayout';
+import { useAuth } from '../hooks/useAuth';
 
 const DashboardPage = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const [userRole, setUserRole] = useState('admin'); // Default role, can be from auth context
-
-  useEffect(() => {
-    // Get role from location state or localStorage
-    const roleFromState = location.state?.role;
-    const roleFromStorage = localStorage.getItem('userRole');
-    
-    if (roleFromState) {
-      setUserRole(roleFromState);
-      localStorage.setItem('userRole', roleFromState);
-    } else if (roleFromStorage) {
-      setUserRole(roleFromStorage);
-    }
-  }, [location]);
+  const { userRole } = useAuth();
 
   const roleContent = {
     admin: {
@@ -67,41 +55,43 @@ const DashboardPage = () => {
   const content = roleContent[userRole] || roleContent.admin;
 
   return (
-    <div className="page">
-      <h1>{content.title}</h1>
-      <p>{content.description}</p>
-      
-      <div style={{ marginTop: '2rem' }}>
-        <h2>Quick Actions</h2>
-        <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-          {content.actions.map((action, index) => (
-            <button
-              key={index}
-              onClick={action.onClick}
-              style={{
-                padding: '0.75rem 1.5rem',
-                backgroundColor: '#007bff',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
-            >
-              {action.label}
-            </button>
-          ))}
+    <ProtectedLayout>
+      <div className="page" style={{ backgroundColor: 'white', padding: '2rem', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+        <h1>{content.title}</h1>
+        <p>{content.description}</p>
+        
+        <div style={{ marginTop: '2rem' }}>
+          <h2>Quick Actions</h2>
+          <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+            {content.actions.map((action, index) => (
+              <button
+                key={index}
+                onClick={action.onClick}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  backgroundColor: '#007bff',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer'
+                }}
+              >
+                {action.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ marginTop: '2rem' }}>
+          <h2>Features</h2>
+          <ul style={{ marginTop: '1rem' }}>
+            {content.features.map((feature, index) => (
+              <li key={index} style={{ marginBottom: '0.5rem' }}>{feature}</li>
+            ))}
+          </ul>
         </div>
       </div>
-
-      <div style={{ marginTop: '2rem' }}>
-        <h2>Features</h2>
-        <ul style={{ marginTop: '1rem' }}>
-          {content.features.map((feature, index) => (
-            <li key={index} style={{ marginBottom: '0.5rem' }}>{feature}</li>
-          ))}
-        </ul>
-      </div>
-    </div>
+    </ProtectedLayout>
   );
 };
 

@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import ProtectedLayout from '../components/ProtectedLayout';
 
 const ProductsPage = () => {
   const [products] = useState([
@@ -32,9 +33,10 @@ const ProductsPage = () => {
   }, [products, filterCategory, filterStock, searchTerm]);
 
   return (
-    <div className="page">
-      <h1>Products</h1>
-      <p>Browse and filter available products.</p>
+    <ProtectedLayout>
+      <div className="page" style={{ backgroundColor: 'white', padding: '2rem', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+        <h1>Products</h1>
+        <p>Browse and filter available products.</p>
 
       {/* Filter UI */}
       <div style={{ 
@@ -168,7 +170,8 @@ const ProductsPage = () => {
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </ProtectedLayout>
   );
 };
 
