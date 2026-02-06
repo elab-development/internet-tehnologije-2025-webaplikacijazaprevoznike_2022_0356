@@ -92,13 +92,13 @@ const DashboardPage = () => {
 
   return (
     <ProtectedLayout>
-      <div className="page" style={{ backgroundColor: 'white', padding: '2rem', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+      <div className="page">
         <h1>{content.title}</h1>
         <p>{content.description}</p>
         
-        <div style={{ marginTop: '2rem' }}>
+        <div className="content-section">
           <h2>Quick Actions</h2>
-          <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+          <div className="actions-container">
             {content.actions.map((action, index) => (
               <Button
                 key={index}
@@ -112,11 +112,11 @@ const DashboardPage = () => {
           </div>
         </div>
 
-        <div style={{ marginTop: '2rem' }}>
+        <div className="content-section">
           <h2>Features</h2>
-          <ul style={{ marginTop: '1rem' }}>
+          <ul className="list-unstyled">
             {content.features.map((feature, index) => (
-              <li key={index} style={{ marginBottom: '0.5rem' }}>{feature}</li>
+              <li key={index}>{feature}</li>
             ))}
           </ul>
         </div>

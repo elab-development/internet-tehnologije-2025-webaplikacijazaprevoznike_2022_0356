@@ -1,4 +1,144 @@
-/* App specific styles can go here */
+/* App specific styles */
 #root {
   width: 100%;
+  min-height: 100vh;
+}
+
+/* Page wrapper */
+.page {
+  padding: 2rem;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+/* Product/Item Cards */
+.product-card,
+.item-card {
+  background-color: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  transition: all 0.2s ease-in-out;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.product-card:hover,
+.item-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-color: #007bff;
+}
+
+.product-card:last-child,
+.item-card:last-child {
+  margin-bottom: 0;
+}
+
+/* Filter sections */
+.filter-section {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.filter-section h2 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+}
+
+/* Totals display */
+.totals-display {
+  background-color: #e7f3ff;
+  border: 2px solid #007bff;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.totals-display h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: #007bff;
+}
+
+.totals-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+/* Two-column layout */
+.two-column-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+@media (max-width: 968px) {
+  .two-column-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Results count */
+.results-count {
+  margin: 1rem 0;
+  color: #6c757d;
+  font-size: 0.95rem;
+  padding: 0.5rem 0;
+}
+
+/* Action buttons container */
+.actions-container {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+/* Quantity controls */
+.quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.quantity-controls label {
+  font-size: 0.9rem;
+  margin-bottom: 0;
+  margin-right: 0.25rem;
+}
+
+.quantity-input {
+  width: 70px !important;
+  text-align: center;
+  padding: 0.5rem !important;
+}
+
+/* Status badges */
+.status-badge {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  display: inline-block;
+}
+
+.status-in-stock {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-out-of-stock {
+  background-color: #f8d7da;
+  color: #721c24;
 }

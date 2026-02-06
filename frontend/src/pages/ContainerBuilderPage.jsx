@@ -99,69 +99,51 @@ const ContainerBuilderPage = () => {
 
   return (
     <ProtectedLayout>
-      <div className="page" style={{ backgroundColor: 'white', padding: '2rem', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+      <div className="page">
         <h1>Container Builder</h1>
         <p>Add products to your container and manage quantities.</p>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginTop: '2rem' }}>
+        <div className="two-column-layout">
           {/* Left Column: Available Products */}
           <div>
             <h2>Available Products</h2>
             
             {/* Search and Filter */}
-            <div style={{ marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <input
-                type="text"
-                placeholder="Search products..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                style={{
-                  padding: '0.5rem',
-                  border: '1px solid #ccc',
-                  borderRadius: '4px',
-                  fontSize: '1rem'
-                }}
-              />
-              <select
-                value={filterCategory}
-                onChange={(e) => setFilterCategory(e.target.value)}
-                style={{
-                  padding: '0.5rem',
-                  border: '1px solid #ccc',
-                  borderRadius: '4px',
-                  fontSize: '1rem'
-                }}
-              >
-                {categories.map(cat => (
-                  <option key={cat} value={cat}>
-                    {cat === 'all' ? 'All Categories' : cat}
-                  </option>
-                ))}
-              </select>
+            <div className="filter-section" style={{ padding: '1rem' }}>
+              <div className="form-group">
+                <input
+                  type="text"
+                  placeholder="Search products..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+              <div className="form-group">
+                <select
+                  value={filterCategory}
+                  onChange={(e) => setFilterCategory(e.target.value)}
+                >
+                  {categories.map(cat => (
+                    <option key={cat} value={cat}>
+                      {cat === 'all' ? 'All Categories' : cat}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             {/* Product List */}
-            <div style={{ maxHeight: '500px', overflowY: 'auto', border: '1px solid #ddd', borderRadius: '8px', padding: '1rem' }}>
+            <div className="scrollable" style={{ maxHeight: '500px' }}>
               {filteredProducts.length === 0 ? (
-                <p style={{ textAlign: 'center', color: '#999', padding: '2rem' }}>
-                  No products available
-                </p>
+                <div className="empty-state">
+                  <p>No products available</p>
+                </div>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                   {filteredProducts.map(product => (
-                    <div
-                      key={product.id}
-                      style={{
-                        padding: '1rem',
-                        border: '1px solid #ddd',
-                        borderRadius: '4px',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center'
-                      }}
-                    >
+                    <div key={product.id} className="product-card">
                       <div style={{ flex: 1 }}>
-                        <h4 style={{ margin: '0 0 0.25rem 0' }}>{product.name}</h4>
+                        <h4>{product.name}</h4>
                         <p style={{ margin: '0.25rem 0', fontSize: '0.9rem', color: '#666' }}>
                           {product.category} | ${product.price.toFixed(2)}
                         </p>
@@ -188,15 +170,9 @@ const ContainerBuilderPage = () => {
             <h2>Container Contents</h2>
             
             {/* Totals Summary */}
-            <div style={{
-              marginBottom: '1rem',
-              padding: '1rem',
-              backgroundColor: '#f8f9fa',
-              borderRadius: '8px',
-              border: '2px solid #007bff'
-            }}>
-              <h3 style={{ margin: '0 0 0.5rem 0' }}>Totals</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', fontSize: '0.9rem' }}>
+            <div className="totals-display">
+              <h3>Totals</h3>
+              <div className="totals-grid">
                 <div>
                   <strong>Total Price:</strong> ${totals.totalPrice.toFixed(2)}
                 </div>
@@ -213,30 +189,22 @@ const ContainerBuilderPage = () => {
             </div>
 
             {/* Container Items */}
-            <div style={{ maxHeight: '400px', overflowY: 'auto', border: '1px solid #ddd', borderRadius: '8px', padding: '1rem' }}>
+            <div className="scrollable" style={{ maxHeight: '400px' }}>
               {containerItems.length === 0 ? (
-                <p style={{ textAlign: 'center', color: '#999', padding: '2rem' }}>
-                  Container is empty. Add products from the left panel.
-                </p>
+                <div className="empty-state">
+                  <p>Container is empty. Add products from the left panel.</p>
+                </div>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                   {containerItems.map(item => {
                     const product = getProductById(item.productId);
                     if (!product) return null;
 
                     return (
-                      <div
-                        key={item.productId}
-                        style={{
-                          padding: '1rem',
-                          border: '1px solid #ddd',
-                          borderRadius: '4px',
-                          backgroundColor: '#fff'
-                        }}
-                      >
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                      <div key={item.productId} className="item-card" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
                           <div style={{ flex: 1 }}>
-                            <h4 style={{ margin: '0 0 0.25rem 0' }}>{product.name}</h4>
+                            <h4>{product.name}</h4>
                             <p style={{ margin: '0.25rem 0', fontSize: '0.9rem', color: '#666' }}>
                               ${product.price.toFixed(2)} × {item.quantity} = ${(product.price * item.quantity).toFixed(2)}
                             </p>
@@ -254,8 +222,8 @@ const ContainerBuilderPage = () => {
                         </div>
                         
                         {/* Quantity Controls */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                          <label style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>Quantity:</label>
+                        <div className="quantity-controls">
+                          <label>Quantity:</label>
                           <Button
                             onClick={() => handleUpdateQuantity(item.productId, item.quantity - 1)}
                             variant="outline"
@@ -272,14 +240,7 @@ const ContainerBuilderPage = () => {
                               const newQty = parseInt(e.target.value) || 1;
                               handleUpdateQuantity(item.productId, newQty);
                             }}
-                            style={{
-                              width: '60px',
-                              padding: '0.25rem',
-                              textAlign: 'center',
-                              border: '1px solid #ccc',
-                              borderRadius: '4px',
-                              fontSize: '1rem'
-                            }}
+                            className="quantity-input"
                           />
                           <Button
                             onClick={() => handleUpdateQuantity(item.productId, item.quantity + 1)}
@@ -298,7 +259,7 @@ const ContainerBuilderPage = () => {
 
             {/* Clear Container Button */}
             {containerItems.length > 0 && (
-              <div style={{ marginTop: '1rem' }}>
+              <div className="mt-2">
                 <Button
                   onClick={() => setContainerItems([])}
                   variant="danger"

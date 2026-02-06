@@ -49,153 +49,99 @@ const ProductsPage = () => {
 
   return (
     <ProtectedLayout>
-      <div className="page" style={{ backgroundColor: 'white', padding: '2rem', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+      <div className="page">
         <h1>Products</h1>
         <p>Browse and filter available products.</p>
 
-      {/* Filter UI */}
-      <div style={{ 
-        marginTop: '2rem', 
-        padding: '1.5rem', 
-        backgroundColor: '#f8f9fa', 
-        borderRadius: '8px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '1rem'
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h2 style={{ margin: 0 }}>Filters</h2>
-          <Button
-            onClick={handleClearFilters}
-            variant="outline"
-            size="small"
-            disabled={!hasActiveFilters}
-          >
-            Clear Filters
-          </Button>
-        </div>
-        <div>
-          <label htmlFor="search" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-            Search by Name:
-          </label>
-          <input
-            id="search"
-            type="text"
-            placeholder="Enter product name..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '0.5rem',
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-              fontSize: '1rem'
-            }}
-          />
-        </div>
-
-        <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
-          <div>
-            <label htmlFor="category" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-              Category:
-            </label>
-            <select
-              id="category"
-              value={filterCategory}
-              onChange={(e) => setFilterCategory(e.target.value)}
-              style={{
-                padding: '0.5rem',
-                border: '1px solid #ccc',
-                borderRadius: '4px',
-                fontSize: '1rem',
-                minWidth: '150px'
-              }}
+        {/* Filter UI */}
+        <div className="filter-section">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <h2 style={{ margin: 0 }}>Filters</h2>
+            <Button
+              onClick={handleClearFilters}
+              variant="outline"
+              size="small"
+              disabled={!hasActiveFilters}
             >
-              {categories.map(cat => (
-                <option key={cat} value={cat}>
-                  {cat === 'all' ? 'All Categories' : cat}
-                </option>
-              ))}
-            </select>
+              Clear Filters
+            </Button>
+          </div>
+          <div className="form-group">
+            <label htmlFor="search">Search by Name:</label>
+            <input
+              id="search"
+              type="text"
+              placeholder="Enter product name..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
 
-          <div>
-            <label htmlFor="stock" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-              Stock Status:
-            </label>
-            <select
-              id="stock"
-              value={filterStock}
-              onChange={(e) => setFilterStock(e.target.value)}
-              style={{
-                padding: '0.5rem',
-                border: '1px solid #ccc',
-                borderRadius: '4px',
-                fontSize: '1rem',
-                minWidth: '150px'
-              }}
-            >
-              <option value="all">All Products</option>
-              <option value="inStock">In Stock</option>
-              <option value="outOfStock">Out of Stock</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      {/* Results count */}
-      <div style={{ marginTop: '1rem', color: '#666' }}>
-        Showing {filteredProducts.length} of {products.length} products
-      </div>
-
-      {/* Products list */}
-      <div style={{ marginTop: '1.5rem' }}>
-        {filteredProducts.length === 0 ? (
-          <p style={{ padding: '2rem', textAlign: 'center', color: '#999' }}>
-            No products match your filters.
-          </p>
-        ) : (
-          <div style={{ display: 'grid', gap: '1rem' }}>
-            {filteredProducts.map(product => (
-              <div
-                key={product.id}
-                style={{
-                  padding: '1rem',
-                  border: '1px solid #ddd',
-                  borderRadius: '8px',
-                  backgroundColor: 'white',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center'
-                }}
+          <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
+            <div className="form-group" style={{ flex: 1, minWidth: '200px' }}>
+              <label htmlFor="category">Category:</label>
+              <select
+                id="category"
+                value={filterCategory}
+                onChange={(e) => setFilterCategory(e.target.value)}
               >
-                <div>
-                  <h3 style={{ margin: '0 0 0.5rem 0' }}>{product.name}</h3>
-                  <p style={{ margin: '0.25rem 0', color: '#666' }}>
-                    Category: {product.category} | Supplier: {product.supplier}
-                  </p>
-                  <p style={{ margin: '0.25rem 0', fontWeight: 'bold', color: '#007bff' }}>
-                    ${product.price.toFixed(2)}
-                  </p>
-                </div>
-                <div>
-                  <span
-                    style={{
-                      padding: '0.5rem 1rem',
-                      borderRadius: '4px',
-                      backgroundColor: product.inStock ? '#d4edda' : '#f8d7da',
-                      color: product.inStock ? '#155724' : '#721c24',
-                      fontWeight: 'bold'
-                    }}
-                  >
-                    {product.inStock ? 'In Stock' : 'Out of Stock'}
-                  </span>
-                </div>
-              </div>
-            ))}
+                {categories.map(cat => (
+                  <option key={cat} value={cat}>
+                    {cat === 'all' ? 'All Categories' : cat}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group" style={{ flex: 1, minWidth: '200px' }}>
+              <label htmlFor="stock">Stock Status:</label>
+              <select
+                id="stock"
+                value={filterStock}
+                onChange={(e) => setFilterStock(e.target.value)}
+              >
+                <option value="all">All Products</option>
+                <option value="inStock">In Stock</option>
+                <option value="outOfStock">Out of Stock</option>
+              </select>
+            </div>
           </div>
-        )}
-      </div>
+        </div>
+
+        {/* Results count */}
+        <div className="results-count">
+          Showing {filteredProducts.length} of {products.length} products
+        </div>
+
+        {/* Products list */}
+        <div className="mt-3">
+          {filteredProducts.length === 0 ? (
+            <div className="empty-state">
+              <p>No products match your filters.</p>
+            </div>
+          ) : (
+            <div className="grid" style={{ gap: '1rem' }}>
+              {filteredProducts.map(product => (
+                <div key={product.id} className="product-card">
+                  <div>
+                    <h3>{product.name}</h3>
+                    <p style={{ margin: '0.25rem 0', color: '#666', fontSize: '0.95rem' }}>
+                      Category: {product.category} | Supplier: {product.supplier}
+                    </p>
+                    <p style={{ margin: '0.25rem 0', fontWeight: 'bold', color: '#007bff', fontSize: '1.1rem' }}>
+                      ${product.price.toFixed(2)}
+                    </p>
+                  </div>
+                  <div>
+                    <span className={`status-badge ${product.inStock ? 'status-in-stock' : 'status-out-of-stock'}`}>
+                      {product.inStock ? 'In Stock' : 'Out of Stock'}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </ProtectedLayout>
   );

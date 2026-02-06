@@ -34,14 +34,12 @@ const LoginPage = () => {
       
       <form onSubmit={handleLogin} style={{ 
         marginTop: '2rem', 
-        maxWidth: '400px',
-        padding: '1.5rem',
-        border: '1px solid #ddd',
-        borderRadius: '8px',
-        backgroundColor: '#f8f9fa'
+        maxWidth: '450px',
+        marginLeft: 'auto',
+        marginRight: 'auto'
       }}>
-        <div style={{ marginBottom: '1rem' }}>
-          <label htmlFor="username" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+        <div className="form-group">
+          <label htmlFor="username">
             Username:
           </label>
           <input
@@ -49,19 +47,12 @@ const LoginPage = () => {
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '0.5rem',
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-              fontSize: '1rem'
-            }}
             placeholder="Enter username"
           />
         </div>
 
-        <div style={{ marginBottom: '1rem' }}>
-          <label htmlFor="password" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+        <div className="form-group">
+          <label htmlFor="password">
             Password:
           </label>
           <input
@@ -69,32 +60,18 @@ const LoginPage = () => {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '0.5rem',
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-              fontSize: '1rem'
-            }}
             placeholder="Enter password"
           />
         </div>
 
-        <div style={{ marginBottom: '1rem' }}>
-          <label htmlFor="role" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+        <div className="form-group">
+          <label htmlFor="role">
             Role:
           </label>
           <select
             id="role"
             value={role}
             onChange={(e) => setRole(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '0.5rem',
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-              fontSize: '1rem'
-            }}
           >
             <option value="admin">Admin</option>
             <option value="supplier">Supplier</option>
