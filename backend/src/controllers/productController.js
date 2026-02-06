@@ -51,6 +51,33 @@ async function list(req, res, next) {
   }
 }
 
+async function listForImporter(req, res, next) {
+  try {
+    const approved = await prisma.collaboration.findMany({
+      where: { importerId: req.user.id, status: 'APPROVED' },
+      select: { supplierId: true },
+    });
+
+    const supplierIds = approved.map((c) => c.supplierId);
+    if (supplierIds.length === 0) {
+      return res.json([]);
+    }
+
+    const products = await prisma.product.findMany({
+      where: { supplierId: { in: supplierIds } },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        category: { select: { name: true } },
+        supplier: { select: { email: true, name: true } },
+      },
+    });
+
+    return res.json(products.map(toListProduct));
+  } catch (e) {
+    return next(e);
+  }
+}
+
 async function create(req, res, next) {
   try {
     const { code, name, price, weight, length, width, height, categoryId, description, imageUrl } = req.body;
@@ -149,4 +176,4 @@ async function remove(req, res, next) {
   }
 }
 
-module.exports = { list, create, update, remove };
+module.exports = { list, listForImporter, create, update, remove };
