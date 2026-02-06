@@ -18,20 +18,26 @@ const ProductsPage = () => {
 
   const categories = ['all', ...new Set(products.map(p => p.category))];
 
+  // Derived rendering: filter products based on search and category filters
   const filteredProducts = useMemo(() => {
     return products.filter(product => {
-      const matchesCategory = filterCategory === 'all' || product.category === filterCategory;
+      // Search by name only
+      const matchesSearch = searchTerm === '' || 
+        product.name.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      // Filter by category
+      const matchesCategory = filterCategory === 'all' || 
+        product.category === filterCategory;
+      
+      // Filter by stock status (optional filter)
       const matchesStock = 
         filterStock === 'all' || 
         (filterStock === 'inStock' && product.inStock) ||
         (filterStock === 'outOfStock' && !product.inStock);
-      const matchesSearch = 
-        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.supplier.toLowerCase().includes(searchTerm.toLowerCase());
       
-      return matchesCategory && matchesStock && matchesSearch;
+      return matchesSearch && matchesCategory && matchesStock;
     });
-  }, [products, filterCategory, filterStock, searchTerm]);
+  }, [products, searchTerm, filterCategory, filterStock]);
 
   const hasActiveFilters = filterCategory !== 'all' || filterStock !== 'all' || searchTerm !== '';
 
@@ -70,12 +76,12 @@ const ProductsPage = () => {
         </div>
         <div>
           <label htmlFor="search" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-            Search:
+            Search by Name:
           </label>
           <input
             id="search"
             type="text"
-            placeholder="Search by name or supplier..."
+            placeholder="Enter product name..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{
