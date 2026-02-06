@@ -8,6 +8,7 @@ const categoryRoutes = require('./src/routes/categoryRoutes');
 const collaborationRoutes = require('./src/routes/collaborationRoutes');
 const productRoutes = require('./src/routes/productRoutes');
 const importerRoutes = require('./src/routes/importerRoutes');
+const containerRoutes = require('./src/routes/containerRoutes');
 const openapiConfig = require('./openapi.config.js');
 const { connect } = require('./src/db');
 
@@ -20,6 +21,7 @@ app.use('/categories', categoryRoutes);
 app.use('/collaborations', collaborationRoutes);
 app.use('/products', productRoutes);
 app.use('/importer', importerRoutes);
+app.use('/containers', containerRoutes);
 
 const swaggerSpec = swaggerJsdoc({
   definition: openapiConfig,
