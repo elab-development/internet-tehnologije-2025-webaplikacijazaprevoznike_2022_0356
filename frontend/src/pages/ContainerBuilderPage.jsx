@@ -1,26 +1,55 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import ProtectedLayout from '../components/ProtectedLayout';
 import Button from '../components/Button';
 
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+
+function mapProductFromApi(p) {
+  const volume = (p.length * p.width * p.height) / 1_000_000;
+  return {
+    id: p.id,
+    name: p.name,
+    category: p.categoryName || 'Uncategorized',
+    price: Number(p.price),
+    weight: Number(p.weight),
+    volume,
+    supplier: p.supplierName || p.supplierEmail || '',
+    inStock: true,
+  };
+}
+
 const ContainerBuilderPage = () => {
-  // Mock products with weight and volume
-  const [availableProducts] = useState([
-    { id: 1, name: 'Product A', category: 'Electronics', price: 299.99, weight: 2.5, volume: 0.5, supplier: 'Supplier 1', inStock: true },
-    { id: 2, name: 'Product B', category: 'Clothing', price: 49.99, weight: 0.3, volume: 0.1, supplier: 'Supplier 2', inStock: true },
-    { id: 3, name: 'Product C', category: 'Electronics', price: 599.99, weight: 5.0, volume: 1.2, supplier: 'Supplier 1', inStock: false },
-    { id: 4, name: 'Product D', category: 'Food', price: 19.99, weight: 1.0, volume: 0.3, supplier: 'Supplier 3', inStock: true },
-    { id: 5, name: 'Product E', category: 'Clothing', price: 79.99, weight: 0.5, volume: 0.2, supplier: 'Supplier 2', inStock: true },
-    { id: 6, name: 'Product F', category: 'Electronics', price: 199.99, weight: 3.0, volume: 0.8, supplier: 'Supplier 1', inStock: false },
-  ]);
+  const [availableProducts, setAvailableProducts] = useState([]);
+  const [productsLoading, setProductsLoading] = useState(true);
+  const [productsError, setProductsError] = useState('');
 
-  // Container state: array of items with product id and quantity
   const [containerItems, setContainerItems] = useState([]);
-
-  // Filter states for product selection
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
 
-  const categories = ['all', ...new Set(availableProducts.map(p => p.category))];
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      setProductsLoading(false);
+      setProductsError('Not logged in');
+      return;
+    }
+    fetch(`${API_BASE}/importer/products`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error(res.status === 401 ? 'Session expired' : 'Failed to load products');
+        return res.json();
+      })
+      .then((data) => {
+        setAvailableProducts((data || []).map(mapProductFromApi));
+        setProductsError('');
+      })
+      .catch((err) => setProductsError(err.message || 'Failed to load products'))
+      .finally(() => setProductsLoading(false));
+  }, []);
+
+  const categories = useMemo(() => ['all', ...new Set(availableProducts.map(p => p.category))], [availableProducts]);
 
   // Filter available products
   const filteredProducts = useMemo(() => {
@@ -134,9 +163,17 @@ const ContainerBuilderPage = () => {
 
             {/* Product List */}
             <div className="scrollable" style={{ maxHeight: '500px' }}>
-              {filteredProducts.length === 0 ? (
+              {productsLoading ? (
                 <div className="empty-state">
-                  <p>No products available</p>
+                  <p>Loading products…</p>
+                </div>
+              ) : productsError ? (
+                <div className="empty-state" style={{ color: '#721c24' }}>
+                  <p>{productsError}</p>
+                </div>
+              ) : filteredProducts.length === 0 ? (
+                <div className="empty-state">
+                  <p>No products available. Get approved by suppliers to see their products.</p>
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>

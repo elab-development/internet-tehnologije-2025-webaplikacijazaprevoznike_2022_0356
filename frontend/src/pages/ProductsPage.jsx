@@ -1,40 +1,56 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import ProtectedLayout from '../components/ProtectedLayout';
 import Button from '../components/Button';
 
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+
 const ProductsPage = () => {
-  const [products] = useState([
-    { id: 1, name: 'Product A', category: 'Electronics', price: 299.99, supplier: 'Supplier 1', inStock: true },
-    { id: 2, name: 'Product B', category: 'Clothing', price: 49.99, supplier: 'Supplier 2', inStock: true },
-    { id: 3, name: 'Product C', category: 'Electronics', price: 599.99, supplier: 'Supplier 1', inStock: false },
-    { id: 4, name: 'Product D', category: 'Food', price: 19.99, supplier: 'Supplier 3', inStock: true },
-    { id: 5, name: 'Product E', category: 'Clothing', price: 79.99, supplier: 'Supplier 2', inStock: true },
-    { id: 6, name: 'Product F', category: 'Electronics', price: 199.99, supplier: 'Supplier 1', inStock: false },
-  ]);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   const [filterCategory, setFilterCategory] = useState('all');
   const [filterStock, setFilterStock] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
 
-  const categories = ['all', ...new Set(products.map(p => p.category))];
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      setLoading(false);
+      setError('Please log in to see products.');
+      return;
+    }
+    fetch(`${API_BASE}/products`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error(res.status === 401 ? 'Session expired' : 'Failed to load products');
+        return res.json();
+      })
+      .then((data) => {
+        setProducts(Array.isArray(data) ? data : []);
+        setError('');
+      })
+      .catch((err) => {
+        setError(err.message || 'Failed to load products');
+        setProducts([]);
+      })
+      .finally(() => setLoading(false));
+  }, []);
 
-  // Derived rendering: filter products based on search and category filters
+  const categories = useMemo(() => ['all', ...new Set(products.map(p => p.categoryName || p.category).filter(Boolean))], [products]);
+
   const filteredProducts = useMemo(() => {
+    const category = (p) => p.categoryName || p.category || '';
     return products.filter(product => {
-      // Search by name only
-      const matchesSearch = searchTerm === '' || 
-        product.name.toLowerCase().includes(searchTerm.toLowerCase());
-      
-      // Filter by category
-      const matchesCategory = filterCategory === 'all' || 
-        product.category === filterCategory;
-      
-      // Filter by stock status (optional filter)
-      const matchesStock = 
-        filterStock === 'all' || 
-        (filterStock === 'inStock' && product.inStock) ||
-        (filterStock === 'outOfStock' && !product.inStock);
-      
+      const matchesSearch = searchTerm === '' ||
+        (product.name || '').toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesCategory = filterCategory === 'all' || category(product) === filterCategory;
+      const inStock = product.inStock !== false;
+      const matchesStock =
+        filterStock === 'all' ||
+        (filterStock === 'inStock' && inStock) ||
+        (filterStock === 'outOfStock' && !inStock);
       return matchesSearch && matchesCategory && matchesStock;
     });
   }, [products, searchTerm, filterCategory, filterStock]);
@@ -108,16 +124,26 @@ const ProductsPage = () => {
           </div>
         </div>
 
-        {/* Results count */}
+        {error && (
+          <div className="empty-state" style={{ color: '#721c24', marginBottom: '1rem' }}>
+            <p>{error}</p>
+          </div>
+        )}
+
+        {loading ? (
+          <div className="empty-state">
+            <p>Loading products…</p>
+          </div>
+        ) : (
+        <>
         <div className="results-count">
           Showing {filteredProducts.length} of {products.length} products
         </div>
 
-        {/* Products list */}
         <div className="mt-3">
           {filteredProducts.length === 0 ? (
             <div className="empty-state">
-              <p>No products match your filters.</p>
+              <p>{products.length === 0 ? 'No products in the database.' : 'No products match your filters.'}</p>
             </div>
           ) : (
             <div className="grid" style={{ gap: '1rem' }}>
@@ -126,15 +152,15 @@ const ProductsPage = () => {
                   <div>
                     <h3>{product.name}</h3>
                     <p style={{ margin: '0.25rem 0', color: '#666', fontSize: '0.95rem' }}>
-                      Category: {product.category} | Supplier: {product.supplier}
+                      Category: {product.categoryName || product.category || '—'} | Supplier: {product.supplierName || product.supplierEmail || product.supplier || '—'}
                     </p>
                     <p style={{ margin: '0.25rem 0', fontWeight: 'bold', color: '#007bff', fontSize: '1.1rem' }}>
-                      ${product.price.toFixed(2)}
+                      ${Number(product.price || 0).toFixed(2)}
                     </p>
                   </div>
                   <div>
-                    <span className={`status-badge ${product.inStock ? 'status-in-stock' : 'status-out-of-stock'}`}>
-                      {product.inStock ? 'In Stock' : 'Out of Stock'}
+                    <span className={`status-badge ${product.inStock !== false ? 'status-in-stock' : 'status-out-of-stock'}`}>
+                      {product.inStock !== false ? 'In Stock' : 'Out of Stock'}
                     </span>
                   </div>
                 </div>
@@ -142,6 +168,8 @@ const ProductsPage = () => {
             </div>
           )}
         </div>
+        </>
+        )}
       </div>
     </ProtectedLayout>
   );

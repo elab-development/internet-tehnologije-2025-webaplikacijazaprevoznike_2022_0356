@@ -12,6 +12,10 @@ RUN npm ci
 # Copy source code
 COPY . .
 
+# API URL kada app radi u browseru: backend je na localhost:4000 (port mapiran iz Dockera)
+ARG VITE_API_URL=http://localhost:4000
+ENV VITE_API_URL=${VITE_API_URL}
+
 # Build the app
 RUN npm run build
 
