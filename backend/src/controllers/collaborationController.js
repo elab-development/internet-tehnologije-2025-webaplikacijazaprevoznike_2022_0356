@@ -10,6 +10,80 @@ function toCollaborationJson(c) {
   };
 }
 
+async function list(req, res, next) {
+  try {
+    if (req.user.role === 'ADMIN') {
+      const collaborations = await prisma.collaboration.findMany({
+        orderBy: { createdAt: 'desc' },
+        include: {
+          supplier: { select: { id: true, email: true, name: true } },
+          importer: { select: { id: true, email: true, name: true } },
+        },
+      });
+      return res.json(
+        collaborations.map((c) => ({
+          ...toCollaborationJson(c),
+          supplierName: c.supplier?.name,
+          supplierEmail: c.supplier?.email,
+          importerName: c.importer?.name,
+          importerEmail: c.importer?.email,
+        }))
+      );
+    }
+    if (req.user.role === 'SUPPLIER') {
+      const collaborations = await prisma.collaboration.findMany({
+        where: { supplierId: req.user.id },
+        orderBy: { createdAt: 'desc' },
+        include: {
+          importer: { select: { id: true, email: true, name: true } },
+        },
+      });
+      return res.json(
+        collaborations.map((c) => ({
+          ...toCollaborationJson(c),
+          importerName: c.importer?.name,
+          importerEmail: c.importer?.email,
+        }))
+      );
+    }
+    if (req.user.role === 'IMPORTER') {
+      const collaborations = await prisma.collaboration.findMany({
+        where: { importerId: req.user.id },
+        orderBy: { createdAt: 'desc' },
+        include: {
+          supplier: { select: { id: true, email: true, name: true } },
+        },
+      });
+      return res.json(
+        collaborations.map((c) => ({
+          ...toCollaborationJson(c),
+          supplierName: c.supplier?.name,
+          supplierEmail: c.supplier?.email,
+        }))
+      );
+    }
+    return res.status(403).json({ message: 'Forbidden', code: 'FORBIDDEN' });
+  } catch (e) {
+    return next(e);
+  }
+}
+
+async function listImporters(req, res, next) {
+  try {
+    if (req.user.role !== 'SUPPLIER') {
+      return res.status(403).json({ message: 'Forbidden', code: 'FORBIDDEN' });
+    }
+    const importers = await prisma.user.findMany({
+      where: { role: 'IMPORTER', active: true },
+      select: { id: true, email: true, name: true },
+      orderBy: { name: 'asc' },
+    });
+    return res.json(importers);
+  } catch (e) {
+    return next(e);
+  }
+}
+
 async function requestCollaboration(req, res, next) {
   try {
     const { importerId } = req.body;
@@ -87,6 +161,13 @@ async function approve(req, res, next) {
       });
     }
 
+    if (existing.importerId !== req.user.id) {
+      return res.status(403).json({
+        message: 'Only the importer who received the request can approve it',
+        code: 'FORBIDDEN',
+      });
+    }
+
     if (existing.status !== 'PENDING') {
       return res.status(409).json({
         message: 'Only PENDING collaborations can be approved',
@@ -123,6 +204,13 @@ async function reject(req, res, next) {
       });
     }
 
+    if (existing.importerId !== req.user.id) {
+      return res.status(403).json({
+        message: 'Only the importer who received the request can reject it',
+        code: 'FORBIDDEN',
+      });
+    }
+
     if (existing.status !== 'PENDING') {
       return res.status(409).json({
         message: 'Only PENDING collaborations can be rejected',
@@ -142,6 +230,8 @@ async function reject(req, res, next) {
 }
 
 module.exports = {
+  list,
+  listImporters,
   requestCollaboration,
   approve,
   reject,

@@ -36,9 +36,11 @@ const ProductsPage = () => {
   const [formSubmitting, setFormSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
 
+  const isImporter = (userRole || '').toLowerCase() === 'importer';
+
   const loadProducts = useCallback(() => {
     if (!token) return;
-    const url = userRole === 'importer' ? `${API_BASE}/importer/products` : `${API_BASE}/products`;
+    const url = isImporter ? `${API_BASE}/importer/products` : `${API_BASE}/products`;
     return fetch(url, {
       headers: { Authorization: `Bearer ${token}` },
     })
@@ -54,7 +56,7 @@ const ProductsPage = () => {
         setError(err.message || 'Failed to load products');
         setProducts([]);
       });
-  }, [token, userRole]);
+  }, [token, isImporter]);
 
   useEffect(() => {
     if (!token) {
@@ -62,8 +64,12 @@ const ProductsPage = () => {
       setError('Please log in to see products.');
       return;
     }
+    if (userRole == null) {
+      setLoading(false);
+      return;
+    }
     loadProducts().finally(() => setLoading(false));
-  }, [token, loadProducts]);
+  }, [token, userRole, loadProducts]);
 
   useEffect(() => {
     if (!isSupplier) return;
@@ -290,7 +296,13 @@ const ProductsPage = () => {
             <div className="mt-3">
               {filteredProducts.length === 0 ? (
                 <div className="empty-state">
-                  <p>{products.length === 0 ? 'No products in the database.' : 'No products match your filters.'}</p>
+                  <p>
+                    {products.length === 0
+                      ? isImporter
+                        ? 'No products available. You need approved collaborations with suppliers to see their products.'
+                        : 'No products in the database.'
+                      : 'No products match your filters.'}
+                  </p>
                 </div>
               ) : (
                 <div className="grid" style={{ gap: '1rem' }}>

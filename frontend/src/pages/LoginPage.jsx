@@ -9,7 +9,6 @@ const LoginPage = () => {
   const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('admin');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -42,10 +41,6 @@ const LoginPage = () => {
         return;
       }
       const userRoleFromApi = data.user?.role;
-      if (role === 'admin' && userRoleFromApi !== 'ADMIN') {
-        setError('You do not have admin access.');
-        return;
-      }
       localStorage.setItem('authToken', data.token);
       localStorage.setItem('userRole', (userRoleFromApi || '').toLowerCase());
       navigate('/dashboard', { state: { role: (userRoleFromApi || '').toLowerCase() } });
@@ -110,21 +105,6 @@ const LoginPage = () => {
               {showPassword ? 'Hide' : 'Show'}
             </button>
           </div>
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="role">
-            Role:
-          </label>
-          <select
-            id="role"
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-          >
-            <option value="admin">Admin</option>
-            <option value="supplier">Supplier</option>
-            <option value="importer">Importer</option>
-          </select>
         </div>
 
         <Button

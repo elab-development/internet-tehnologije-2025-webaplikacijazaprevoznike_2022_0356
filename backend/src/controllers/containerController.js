@@ -217,7 +217,7 @@ async function getById(req, res, next) {
         items: {
           include: {
             product: {
-              select: { id: true, price: true, weight: true, length: true, width: true, height: true },
+              select: { id: true, name: true, price: true, weight: true, length: true, width: true, height: true },
             },
           },
         },
@@ -236,8 +236,22 @@ async function getById(req, res, next) {
 
     return res.json({
       ...toContainerJson(container),
-      items: container.items.map(toItemJson),
-      ...totals,
+      items: container.items.map((i) => {
+        const vol = i.product ? (Number(i.product.length) * Number(i.product.width) * Number(i.product.height)) / 1_000_000 : 0;
+        return {
+          ...toItemJson(i),
+          product: i.product ? {
+            id: i.product.id,
+            name: i.product.name,
+            price: Number(i.product.price),
+            weight: Number(i.product.weight),
+            volume: vol,
+          } : null,
+        };
+      }),
+      totalPrice: totals.totalPrice,
+      totalWeight: totals.totalWeight,
+      totalVolume: totals.totalVolume,
     });
   } catch (e) {
     return next(e);
@@ -265,5 +279,32 @@ async function remove(req, res, next) {
   }
 }
 
-module.exports = { list, create, addItem, getById, remove };
+async function removeItem(req, res, next) {
+  try {
+    const containerId = Number(req.params.id);
+    const itemId = Number(req.params.itemId);
+    if (!containerId || !itemId) {
+      return res.status(400).json({ message: 'Invalid container or item id', code: 'VALIDATION_ERROR' });
+    }
+    const container = await prisma.container.findUnique({ where: { id: containerId } });
+    if (!container) {
+      return res.status(404).json({ message: 'Container not found', code: 'NOT_FOUND' });
+    }
+    if (container.importerId !== req.user.id) {
+      return res.status(404).json({ message: 'Container not found', code: 'NOT_FOUND' });
+    }
+    const item = await prisma.containerItem.findFirst({
+      where: { id: itemId, containerId },
+    });
+    if (!item) {
+      return res.status(404).json({ message: 'Item not found', code: 'NOT_FOUND' });
+    }
+    await prisma.containerItem.delete({ where: { id: itemId } });
+    return res.status(204).send();
+  } catch (e) {
+    next(e);
+  }
+}
+
+module.exports = { list, create, addItem, getById, remove, removeItem };
 

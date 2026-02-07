@@ -1,7 +1,7 @@
 const express = require('express');
 const { auth } = require('../middlewares/auth');
 const { requireRole } = require('../middlewares/requireRole');
-const { list, create, addItem, getById, remove } = require('../controllers/containerController');
+const { list, create, addItem, getById, remove, removeItem } = require('../controllers/containerController');
 
 const router = express.Router();
 
@@ -135,6 +135,9 @@ router.delete('/:id', auth, requireRole('IMPORTER'), remove);
 
 // POST /containers/:id/items (IMPORTER owner)
 router.post('/:id/items', auth, requireRole('IMPORTER'), addItem);
+
+// DELETE /containers/:id/items/:itemId (IMPORTER owner)
+router.delete('/:id/items/:itemId', auth, requireRole('IMPORTER'), removeItem);
 
 module.exports = router;
 
