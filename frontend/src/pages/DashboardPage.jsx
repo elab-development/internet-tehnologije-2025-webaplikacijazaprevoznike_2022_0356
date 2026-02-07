@@ -83,7 +83,7 @@ const DashboardPage = () => {
       ],
       actions: [
         { label: 'Browse Products', onClick: () => navigate('/products') },
-        { label: 'My Containers', onClick: () => console.log('View containers') }
+        { label: 'My Containers', onClick: () => navigate('/importer') }
       ]
     }
   };

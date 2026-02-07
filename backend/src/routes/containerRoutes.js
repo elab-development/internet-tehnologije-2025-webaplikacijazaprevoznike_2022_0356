@@ -1,7 +1,7 @@
 const express = require('express');
 const { auth } = require('../middlewares/auth');
 const { requireRole } = require('../middlewares/requireRole');
-const { create, addItem, getById } = require('../controllers/containerController');
+const { list, create, addItem, getById, remove } = require('../controllers/containerController');
 
 const router = express.Router();
 
@@ -121,14 +121,20 @@ const router = express.Router();
  *           application/json:
  *             schema: { $ref: '#/components/schemas/ErrorBody' }
  */
+// GET /containers (IMPORTER) – list own containers
+router.get('/', auth, requireRole('IMPORTER'), list);
+
 // POST /containers (IMPORTER)
 router.post('/', auth, requireRole('IMPORTER'), create);
 
-// POST /containers/:id/items (IMPORTER owner)
-router.post('/:id/items', auth, requireRole('IMPORTER'), addItem);
-
 // GET /containers/:id (IMPORTER owner)
 router.get('/:id', auth, requireRole('IMPORTER'), getById);
+
+// DELETE /containers/:id (IMPORTER owner)
+router.delete('/:id', auth, requireRole('IMPORTER'), remove);
+
+// POST /containers/:id/items (IMPORTER owner)
+router.post('/:id/items', auth, requireRole('IMPORTER'), addItem);
 
 module.exports = router;
 

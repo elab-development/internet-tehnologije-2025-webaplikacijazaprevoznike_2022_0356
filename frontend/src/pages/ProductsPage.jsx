@@ -38,7 +38,8 @@ const ProductsPage = () => {
 
   const loadProducts = useCallback(() => {
     if (!token) return;
-    return fetch(`${API_BASE}/products`, {
+    const url = userRole === 'importer' ? `${API_BASE}/importer/products` : `${API_BASE}/products`;
+    return fetch(url, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => {
@@ -53,7 +54,7 @@ const ProductsPage = () => {
         setError(err.message || 'Failed to load products');
         setProducts([]);
       });
-  }, [token]);
+  }, [token, userRole]);
 
   useEffect(() => {
     if (!token) {

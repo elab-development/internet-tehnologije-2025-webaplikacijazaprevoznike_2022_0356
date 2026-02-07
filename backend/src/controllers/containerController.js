@@ -27,6 +27,9 @@ function toContainerJson(c) {
     id: c.id,
     importerId: c.importerId,
     name: c.name,
+    maxWeight: Number(c.maxWeight),
+    maxVolume: Number(c.maxVolume),
+    maxPrice: Number(c.maxPrice),
     createdAt: c.createdAt,
   };
 }
@@ -38,6 +41,24 @@ function toItemJson(i) {
     productId: i.productId,
     quantity: i.quantity,
   };
+}
+
+async function list(req, res, next) {
+  try {
+    const containers = await prisma.container.findMany({
+      where: { importerId: req.user.id },
+      orderBy: { createdAt: 'desc' },
+      include: { _count: { select: { items: true } } },
+    });
+    return res.json(
+      containers.map((c) => ({
+        ...toContainerJson(c),
+        itemCount: c._count.items,
+      }))
+    );
+  } catch (e) {
+    next(e);
+  }
 }
 
 async function create(req, res, next) {
@@ -223,5 +244,26 @@ async function getById(req, res, next) {
   }
 }
 
-module.exports = { create, addItem, getById };
+async function remove(req, res, next) {
+  try {
+    const id = Number(req.params.id);
+    if (!id) {
+      return res.status(400).json({ message: 'Invalid id', code: 'VALIDATION_ERROR' });
+    }
+    const container = await prisma.container.findUnique({ where: { id } });
+    if (!container) {
+      return res.status(404).json({ message: 'Container not found', code: 'NOT_FOUND' });
+    }
+    if (container.importerId !== req.user.id) {
+      return res.status(404).json({ message: 'Container not found', code: 'NOT_FOUND' });
+    }
+    await prisma.containerItem.deleteMany({ where: { containerId: id } });
+    await prisma.container.delete({ where: { id } });
+    return res.status(204).send();
+  } catch (e) {
+    next(e);
+  }
+}
+
+module.exports = { list, create, addItem, getById, remove };
 
