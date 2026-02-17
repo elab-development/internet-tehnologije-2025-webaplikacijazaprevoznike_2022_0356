@@ -1,10 +1,4 @@
--- ============================================================
--- SAMO TEST PODACI – prilagođeno tvojim korisnicima
--- Supplieri: 2 (Tester1), 4 (Supplier One), 5 (Supplier Two), 9 (Supplier), 11 (Tule)
--- Importeri: 6 (Importer One), 7 (Importer Two), 10 (Importer), 12 (T)
--- Pokreni: Ctrl+A, F5 u pgAdminu.
--- ============================================================
--- 0) Očisti sve osim Usera (redosled zbog stranih ključeva)
+
 DELETE FROM "ContainerItem";
 DELETE FROM "Container";
 DELETE FROM "Product";

@@ -2,13 +2,11 @@ import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
 /**
- * Custom hook to get and manage user authentication/role
- * @returns {Object} { userRole, setUserRole, isAuthenticated, token, logout }
+ * @returns {Object} 
  */
 export const useAuth = () => {
   const location = useLocation();
   const [userRole, setUserRole] = useState(() => {
-    // Initialize from localStorage or default
     return localStorage.getItem('userRole') || null;
   });
   const [token, setToken] = useState(() => {
@@ -16,7 +14,6 @@ export const useAuth = () => {
   });
 
   useEffect(() => {
-    // Update role from location state if provided
     const roleFromState = location.state?.role;
     const tokenFromStorage = localStorage.getItem('authToken');
     const roleFromStorage = localStorage.getItem('userRole');

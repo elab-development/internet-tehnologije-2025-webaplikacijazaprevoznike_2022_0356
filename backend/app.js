@@ -34,12 +34,10 @@ const swaggerSpec = swaggerJsdoc({
 });
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// 404 — consistent JSON
 app.use((req, res) => {
   res.status(404).json({ message: 'Not found', code: 'NOT_FOUND' });
 });
 
-// Global error handler — consistent JSON
 app.use((err, req, res, next) => {
   console.error('Server error:', err);
   const status = err.status ?? err.statusCode ?? 500;
