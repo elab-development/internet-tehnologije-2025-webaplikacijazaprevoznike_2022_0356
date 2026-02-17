@@ -15,17 +15,20 @@ const NavBar = ({ userRole }) => {
       { path: '/dashboard', label: 'Dashboard' },
       { path: '/products', label: 'Products' },
       { path: '/admin', label: 'Admin' },
+      { path: '/map', label: 'Map' },
     ],
     supplier: [
       { path: '/dashboard', label: 'Dashboard' },
       { path: '/products', label: 'Products' },
       { path: '/supplier', label: 'Supplier' },
+      { path: '/map', label: 'Map' },
     ],
     importer: [
       { path: '/dashboard', label: 'Dashboard' },
       { path: '/products', label: 'Products' },
       { path: '/container-builder', label: 'Container' },
       { path: '/importer', label: 'Containers' },
+      { path: '/map', label: 'Map' },
     ],
   };
 

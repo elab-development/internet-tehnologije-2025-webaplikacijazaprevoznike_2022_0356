@@ -12,6 +12,7 @@ const productRoutes = require('./src/routes/productRoutes');
 const importerRoutes = require('./src/routes/importerRoutes');
 const containerRoutes = require('./src/routes/containerRoutes');
 const compareRoutes = require('./src/routes/compareRoutes');
+const mapRoutes = require('./src/routes/mapRoutes');
 const openapiConfig = require('./openapi.config.js');
 const { connect } = require('./src/db');
 
@@ -27,6 +28,7 @@ app.use('/products', productRoutes);
 app.use('/importer', importerRoutes);
 app.use('/containers', containerRoutes);
 app.use('/compare', compareRoutes);
+app.use('/api/map', mapRoutes);
 
 const swaggerSpec = swaggerJsdoc({
   definition: openapiConfig,

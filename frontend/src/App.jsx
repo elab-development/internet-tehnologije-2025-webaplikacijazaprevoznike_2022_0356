@@ -11,6 +11,7 @@ import ContainerBuilderPage from './pages/ContainerBuilderPage';
 import AdminPage from './pages/AdminPage';
 import SupplierPage from './pages/SupplierPage';
 import ImporterPage from './pages/ImporterPage';
+import MapPage from './pages/MapPage';
 import './App.css';
 
 function App() {
@@ -80,6 +81,14 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['importer']}>
                 <ImporterPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="map" 
+            element={
+              <ProtectedRoute>
+                <MapPage />
               </ProtectedRoute>
             } 
           />

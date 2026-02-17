@@ -175,6 +175,13 @@ U folderu `backend/prisma/` nalaze se SQL skripte za seed podatke:
 
 Za lokalnu bazu ili prvu inicijalizaciju Docker baze, prvo pokreni Prisma migracije, pa zatim željenu seed skriptu.
 
+### Mapa (lokacije suppliera i importera)
+
+Stranica **Map** prikazuje lokacije korisnika (SUPPLIER/IMPORTER) na Google Mapi. Da bi korisnici imali koordinate:
+
+1. Pokreni SQL skriptu `backend/prisma/add-user-location-serbia.sql` u pgAdminu ili `psql`. Skripta dodaje kolone `latitude` i `longitude` u tabelu `User` i popunjava ih nasumičnim koordinatama unutar Srbije.
+2. U frontend `.env` postavi `VITE_GOOGLE_MAPS_API_KEY=<tvoj Google Maps API ključ>` (Maps JavaScript API). Bez ključa mapa se ne učitava.
+
 ---
 
 ## Troubleshooting
