@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ProtectedLayout from '../components/ProtectedLayout';
+import Button from '../components/Button';
 import { useAuth } from '../hooks/useAuth';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000';
@@ -12,6 +13,30 @@ const AdminPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+
+  const [categories, setCategories] = useState([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const [categoriesError, setCategoriesError] = useState('');
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [categorySubmitting, setCategorySubmitting] = useState(false);
+  const [categoryFormError, setCategoryFormError] = useState('');
+  const [deletingCategoryId, setDeletingCategoryId] = useState(null);
+
+  const loadCategories = useCallback(() => {
+    return fetch(`${API_BASE}/categories`)
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to load categories');
+        return res.json();
+      })
+      .then((data) => {
+        setCategories(Array.isArray(data) ? data : []);
+        setCategoriesError('');
+      })
+      .catch((err) => {
+        setCategoriesError(err.message || 'Failed to load categories');
+        setCategories([]);
+      });
+  }, []);
 
   const loadCollaborations = useCallback(() => {
     if (!token) return Promise.resolve();
@@ -39,10 +64,62 @@ const AdminPage = () => {
     }
     if (!token) {
       setLoading(false);
+      setCategoriesLoading(false);
       return;
     }
     loadCollaborations().finally(() => setLoading(false));
-  }, [userRole, isAuthenticated, navigate, token, loadCollaborations]);
+    loadCategories().finally(() => setCategoriesLoading(false));
+  }, [userRole, isAuthenticated, navigate, token, loadCollaborations, loadCategories]);
+
+  const handleAddCategory = (e) => {
+    e.preventDefault();
+    setCategoryFormError('');
+    const name = newCategoryName.trim();
+    if (!name) {
+      setCategoryFormError('Category name is required.');
+      return;
+    }
+    setCategorySubmitting(true);
+    fetch(`${API_BASE}/categories`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ name }),
+    })
+      .then((res) => res.json().then((data) => ({ ok: res.ok, status: res.status, data })))
+      .then(({ ok, status, data }) => {
+        if (ok) {
+          setNewCategoryName('');
+          loadCategories();
+        } else {
+          setCategoryFormError(data.message || 'Failed to create category');
+        }
+      })
+      .catch(() => setCategoryFormError('Network error'))
+      .finally(() => setCategorySubmitting(false));
+  };
+
+  const handleDeleteCategory = (cat) => {
+    if (!window.confirm(`Delete category "${cat.name}"? This will fail if any products use it.`)) return;
+    setDeletingCategoryId(cat.id);
+    fetch(`${API_BASE}/categories/${cat.id}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => {
+        if (res.status === 204) {
+          loadCategories();
+          return;
+        }
+        return res.json().then((data) => {
+          throw new Error(data.message || 'Delete failed');
+        });
+      })
+      .catch((err) => setCategoriesError(err.message || 'Delete failed'))
+      .finally(() => setDeletingCategoryId(null));
+  };
 
   const filtered =
     filterStatus === 'all'
@@ -129,6 +206,63 @@ const AdminPage = () => {
                   >
                     {c.status}
                   </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section style={{ marginTop: '2.5rem' }}>
+          <h2>Categories</h2>
+          <p style={{ color: '#666', marginBottom: '1rem', fontSize: '0.95rem' }}>
+            Manage product categories. Suppliers choose a category when adding products. Deleting a category fails if any product uses it.
+          </p>
+          {categoriesError && (
+            <div className="empty-state" style={{ color: '#721c24', marginBottom: '1rem' }}>
+              <p>{categoriesError}</p>
+            </div>
+          )}
+          <form onSubmit={handleAddCategory} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap', marginBottom: '1rem' }}>
+            <input
+              type="text"
+              value={newCategoryName}
+              onChange={(e) => setNewCategoryName(e.target.value)}
+              placeholder="New category name"
+              style={{ padding: '0.4rem 0.6rem', minWidth: '180px' }}
+              disabled={categorySubmitting}
+            />
+            <Button type="submit" variant="primary" disabled={categorySubmitting}>
+              {categorySubmitting ? 'Adding…' : 'Add category'}
+            </Button>
+            {categoryFormError && <span style={{ color: '#721c24', fontSize: '0.9rem' }}>{categoryFormError}</span>}
+          </form>
+          {categoriesLoading ? (
+            <p style={{ color: '#666' }}>Loading categories…</p>
+          ) : categories.length === 0 ? (
+            <p style={{ color: '#666' }}>No categories yet. Add one above.</p>
+          ) : (
+            <div className="grid" style={{ gap: '0.5rem' }}>
+              {categories.map((cat) => (
+                <div
+                  key={cat.id}
+                  className="product-card"
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    flexWrap: 'wrap',
+                    gap: '0.5rem',
+                  }}
+                >
+                  <span style={{ fontWeight: 500 }}>{cat.name}</span>
+                  <Button
+                    variant="danger"
+                    size="small"
+                    onClick={() => handleDeleteCategory(cat)}
+                    disabled={deletingCategoryId !== null}
+                  >
+                    {deletingCategoryId === cat.id ? '…' : 'Delete'}
+                  </Button>
                 </div>
               ))}
             </div>
