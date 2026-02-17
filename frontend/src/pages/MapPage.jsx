@@ -5,15 +5,19 @@ import { useAuth } from '../hooks/useAuth';
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 const GOOGLE_MAPS_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '';
 
+const MAP_SCRIPT_ID = 'google-maps-api-script';
+
 export default function MapPage() {
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const markersRef = useRef([]);
+  const scriptLoadStarted = useRef(false);
   const { token } = useAuth();
   const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [mapError, setMapError] = useState('');
 
   useEffect(() => {
     if (!token) return;
@@ -44,47 +48,65 @@ export default function MapPage() {
       setMapLoaded(true);
       return;
     }
+    if (document.getElementById(MAP_SCRIPT_ID)) {
+      return;
+    }
+    if (scriptLoadStarted.current) {
+      return;
+    }
+    scriptLoadStarted.current = true;
     const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_KEY}&callback=window.__mapInit`;
+    script.id = MAP_SCRIPT_ID;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_KEY}&loading=async&callback=window.__mapInit`;
     script.async = true;
     script.defer = true;
     window.__mapInit = () => setMapLoaded(true);
-    document.head.appendChild(script);
-    return () => {
-      delete window.__mapInit;
+    script.onerror = () => {
+      setMapError('Failed to load Google Maps script.');
     };
+    document.head.appendChild(script);
   }, []);
 
   useEffect(() => {
     if (!mapRef.current || !mapLoaded || !window.google?.maps) return;
+    setMapError('');
 
-    const center = { lat: 44.0, lng: 20.9 };
-    const map = new window.google.maps.Map(mapRef.current, {
-      center,
-      zoom: 7,
-      mapTypeControl: true,
-      streetViewControl: false,
-    });
-    mapInstanceRef.current = map;
+    try {
+      const center = { lat: 44.0, lng: 20.9 };
+      const map = new window.google.maps.Map(mapRef.current, {
+        center,
+        zoom: 7,
+        mapTypeControl: true,
+        streetViewControl: false,
+      });
+      mapInstanceRef.current = map;
 
-    markersRef.current.forEach((m) => m.setMap(null));
-    markersRef.current = [];
+      markersRef.current.forEach((m) => m.setMap(null));
+      markersRef.current = [];
 
-    locations.forEach((loc) => {
-      const marker = new window.google.maps.Marker({
-        position: { lat: loc.lat, lng: loc.lng },
-        map,
-        title: loc.name,
+      locations.forEach((loc) => {
+        const marker = new window.google.maps.Marker({
+          position: { lat: loc.lat, lng: loc.lng },
+          map,
+          title: loc.name,
+        });
+        const infoWindow = new window.google.maps.InfoWindow({
+          content: `<div style="padding:8px;min-width:180px;"><strong>${escapeHtml(loc.name)}</strong><br/>${escapeHtml(loc.email)}<br/><em>${escapeHtml(loc.role)}</em></div>`,
+        });
+        marker.addListener('click', () => {
+          markersRef.current.forEach((m) => infoWindow.close());
+          infoWindow.open(map, marker);
+        });
+        markersRef.current.push(marker);
       });
-      const infoWindow = new window.google.maps.InfoWindow({
-        content: `<div style="padding:8px;min-width:180px;"><strong>${escapeHtml(loc.name)}</strong><br/>${escapeHtml(loc.email)}<br/><em>${escapeHtml(loc.role)}</em></div>`,
-      });
-      marker.addListener('click', () => {
-        markersRef.current.forEach((m) => infoWindow.close());
-        infoWindow.open(map, marker);
-      });
-      markersRef.current.push(marker);
-    });
+    } catch (err) {
+      const msg = err?.message || String(err);
+      if (msg.includes('ApiNotActivated') || msg.includes('NOT_FOUND') || msg.includes('InvalidKey')) {
+        setMapError('Maps JavaScript API is not enabled or the key is invalid. In Google Cloud Console enable "Maps JavaScript API" and check API key restrictions and billing.');
+      } else {
+        setMapError(msg || 'Map failed to load.');
+      }
+    }
   }, [mapLoaded, locations]);
 
   function escapeHtml(text) {
@@ -104,6 +126,11 @@ export default function MapPage() {
         {error && (
           <div style={{ color: '#721c24', marginBottom: '1rem', padding: '0.75rem', background: '#f8d7da', borderRadius: '6px' }}>
             {error}
+          </div>
+        )}
+        {mapError && (
+          <div style={{ color: '#721c24', marginBottom: '1rem', padding: '0.75rem', background: '#f8d7da', borderRadius: '6px' }}>
+            {mapError}
           </div>
         )}
         {loading && <p>Loading locations…</p>}

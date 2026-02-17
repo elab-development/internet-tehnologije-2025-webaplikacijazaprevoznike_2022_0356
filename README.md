@@ -180,7 +180,8 @@ Za lokalnu bazu ili prvu inicijalizaciju Docker baze, prvo pokreni Prisma migrac
 Stranica **Map** prikazuje lokacije korisnika (SUPPLIER/IMPORTER) na Google Mapi. Da bi korisnici imali koordinate:
 
 1. Pokreni SQL skriptu `backend/prisma/add-user-location-serbia.sql` u pgAdminu ili `psql`. Skripta dodaje kolone `latitude` i `longitude` u tabelu `User` i popunjava ih nasumičnim koordinatama unutar Srbije.
-2. U frontend `.env` postavi `VITE_GOOGLE_MAPS_API_KEY=<tvoj Google Maps API ključ>` (Maps JavaScript API). Bez ključa mapa se ne učitava.
+2. U frontend `.env` postavi `VITE_GOOGLE_MAPS_API_KEY=<tvoj Google Maps API ključ>`. Bez ključa mapa se ne učitava.
+3. U **Google Cloud Console** za projekat u kojem je ključ uključi **Maps JavaScript API** (APIs & Services → Library → „Maps JavaScript API” → Enable). Ako vidiš `ApiNotActivatedMapError`, upravo taj API nije uključen ili je ključ pogrešan/ograničen.
 
 ---
 
