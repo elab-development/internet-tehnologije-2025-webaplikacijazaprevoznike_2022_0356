@@ -13,6 +13,7 @@ import SupplierPage from './pages/SupplierPage';
 import ImporterPage from './pages/ImporterPage';
 import MapPage from './pages/MapPage';
 import StatsPage from './pages/StatsPage';
+import CountriesPage from './pages/CountriesPage';
 import './App.css';
 
 function App() {
@@ -85,7 +86,7 @@ function App() {
               </ProtectedRoute>
             } 
           />
-<Route
+          <Route
             path="map"
             element={
               <ProtectedRoute>
@@ -98,6 +99,14 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['admin']}>
                 <StatsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="countries"
+            element={
+              <ProtectedRoute>
+                <CountriesPage />
               </ProtectedRoute>
             }
           />

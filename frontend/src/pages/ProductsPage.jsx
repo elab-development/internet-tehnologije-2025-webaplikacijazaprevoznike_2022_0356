@@ -2,8 +2,7 @@ import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import ProtectedLayout from '../components/ProtectedLayout';
 import Button from '../components/Button';
 import { useAuth } from '../hooks/useAuth';
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+import { apiFetch, API_BASE } from '../utils/apiClient';
 
 const defaultForm = {
   code: '',
@@ -40,8 +39,8 @@ const ProductsPage = () => {
 
   const loadProducts = useCallback(() => {
     if (!token) return;
-    const url = isImporter ? `${API_BASE}/importer/products` : `${API_BASE}/products`;
-    return fetch(url, {
+    const url = isImporter ? '/importer/products' : '/products';
+    return apiFetch(url, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => {
@@ -172,7 +171,7 @@ const ProductsPage = () => {
     }
     setFormSubmitting(true);
     if (editingProduct) {
-      fetch(`${API_BASE}/products/${editingProduct.id}`, {
+      apiFetch(`/products/${editingProduct.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -191,7 +190,7 @@ const ProductsPage = () => {
         .catch((err) => setFormError(err.message || 'Update failed'))
         .finally(() => setFormSubmitting(false));
     } else {
-      fetch(`${API_BASE}/products`, {
+      apiFetch('/products', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -214,7 +213,7 @@ const ProductsPage = () => {
 
   const handleDelete = (product) => {
     if (!window.confirm(`Delete product "${product.name}"?`)) return;
-    fetch(`${API_BASE}/products/${product.id}`, {
+    apiFetch(`/products/${product.id}`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${token}` },
     })

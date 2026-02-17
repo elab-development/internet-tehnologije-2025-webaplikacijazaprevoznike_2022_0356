@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import ProtectedLayout from '../components/ProtectedLayout';
 import { useAuth } from '../hooks/useAuth';
+import { apiFetch } from '../utils/apiClient';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 const GOOGLE_MAPS_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '';
@@ -21,7 +22,7 @@ export default function MapPage() {
 
   useEffect(() => {
     if (!token) return;
-    fetch(`${API_BASE}/api/map/locations`, {
+    apiFetch('/api/map/locations', {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => {

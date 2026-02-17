@@ -16,6 +16,7 @@ const NavBar = ({ userRole }) => {
       { path: '/products', label: 'Products' },
       { path: '/admin', label: 'Admin' },
       { path: '/map', label: 'Map' },
+      { path: '/countries', label: 'Countries' },
       { path: '/stats', label: 'Statistics' },
     ],
     supplier: [
@@ -23,6 +24,7 @@ const NavBar = ({ userRole }) => {
       { path: '/products', label: 'Products' },
       { path: '/supplier', label: 'Supplier' },
       { path: '/map', label: 'Map' },
+      { path: '/countries', label: 'Countries' },
     ],
     importer: [
       { path: '/dashboard', label: 'Dashboard' },
@@ -30,6 +32,7 @@ const NavBar = ({ userRole }) => {
       { path: '/container-builder', label: 'Container' },
       { path: '/importer', label: 'Containers' },
       { path: '/map', label: 'Map' },
+      { path: '/countries', label: 'Countries' },
     ],
   };
 

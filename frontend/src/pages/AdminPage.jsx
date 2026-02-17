@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import ProtectedLayout from '../components/ProtectedLayout';
 import Button from '../components/Button';
 import { useAuth } from '../hooks/useAuth';
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+import { apiFetch, API_BASE } from '../utils/apiClient';
 
 const AdminPage = () => {
   const navigate = useNavigate();
@@ -40,7 +39,7 @@ const AdminPage = () => {
 
   const loadCollaborations = useCallback(() => {
     if (!token) return Promise.resolve();
-    return fetch(`${API_BASE}/collaborations`, {
+    return apiFetch('/collaborations', {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => {
@@ -80,7 +79,7 @@ const AdminPage = () => {
       return;
     }
     setCategorySubmitting(true);
-    fetch(`${API_BASE}/categories`, {
+    apiFetch('/categories', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -104,7 +103,7 @@ const AdminPage = () => {
   const handleDeleteCategory = (cat) => {
     if (!window.confirm(`Delete category "${cat.name}"? This will fail if any products use it.`)) return;
     setDeletingCategoryId(cat.id);
-    fetch(`${API_BASE}/categories/${cat.id}`, {
+    apiFetch(`/categories/${cat.id}`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${token}` },
     })

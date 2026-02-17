@@ -14,8 +14,7 @@ import {
 } from 'recharts';
 import ProtectedLayout from '../components/ProtectedLayout';
 import { useAuth } from '../hooks/useAuth';
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+import { apiFetch } from '../utils/apiClient';
 
 const STATUS_COLORS = { PENDING: '#f0ad4e', APPROVED: '#5cb85c', REJECTED: '#d9534f' };
 const PIE_COLORS = ['#4a90d9', '#7ed56f', '#ff6b6b', '#feca57', '#a55eea', '#45aaf2'];
@@ -28,7 +27,7 @@ export default function StatsPage() {
 
   useEffect(() => {
     if (!token) return;
-    fetch(`${API_BASE}/api/stats`, {
+    apiFetch('/api/stats', {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => {

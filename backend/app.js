@@ -14,6 +14,9 @@ const containerRoutes = require('./src/routes/containerRoutes');
 const compareRoutes = require('./src/routes/compareRoutes');
 const mapRoutes = require('./src/routes/mapRoutes');
 const statsRoutes = require('./src/routes/statsRoutes');
+const countriesRoutes = require('./src/routes/countriesRoutes');
+const { sanitizeBody } = require('./src/middlewares/sanitizeBody');
+const { csrfProtection } = require('./src/middlewares/csrf');
 const openapiConfig = require('./openapi.config.js');
 const { connect } = require('./src/db');
 
@@ -21,6 +24,8 @@ const app = express();
 
 app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:5173' }));
 app.use(express.json());
+app.use(sanitizeBody);
+app.use(csrfProtection);
 app.use(healthRoutes);
 app.use('/auth', authRoutes);
 app.use('/categories', categoryRoutes);
@@ -31,6 +36,7 @@ app.use('/containers', containerRoutes);
 app.use('/compare', compareRoutes);
 app.use('/api/map', mapRoutes);
 app.use('/api/stats', statsRoutes);
+app.use('/api/countries', countriesRoutes);
 
 const swaggerSpec = swaggerJsdoc({
   definition: openapiConfig,

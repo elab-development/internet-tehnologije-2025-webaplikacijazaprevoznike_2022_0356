@@ -3,8 +3,7 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import ProtectedLayout from '../components/ProtectedLayout';
 import Button from '../components/Button';
 import { useAuth } from '../hooks/useAuth';
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+import { apiFetch, API_BASE } from '../utils/apiClient';
 
 function mapProductFromApi(p) {
   const volume = (p.length * p.width * p.height) / 1_000_000;
@@ -42,7 +41,7 @@ const ContainerBuilderPage = () => {
 
   const loadContainers = useCallback(() => {
     if (!token) return Promise.resolve();
-    return fetch(`${API_BASE}/containers`, {
+    return apiFetch('/containers', {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => {
@@ -61,7 +60,7 @@ const ContainerBuilderPage = () => {
       }
       setContainerLoading(true);
       setContainerError('');
-      return fetch(`${API_BASE}/containers/${id}`, {
+      return apiFetch(`/containers/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
         .then((res) => {
@@ -103,7 +102,7 @@ const ContainerBuilderPage = () => {
       setProductsError('Not logged in');
       return;
     }
-    fetch(`${API_BASE}/importer/products`, {
+    apiFetch('/importer/products', {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => {
@@ -136,7 +135,7 @@ const ContainerBuilderPage = () => {
     if (!containerId || !token || quantity < 1) return;
     setAddError('');
     setAddingProductId(product.id);
-    fetch(`${API_BASE}/containers/${containerId}/items`, {
+    apiFetch(`/containers/${containerId}/items`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -160,7 +159,7 @@ const ContainerBuilderPage = () => {
   const handleRemoveItem = (itemId) => {
     if (!containerId || !token) return;
     if (!window.confirm('Remove this item from the container?')) return;
-    fetch(`${API_BASE}/containers/${containerId}/items/${itemId}`, {
+    apiFetch(`/containers/${containerId}/items/${itemId}`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${token}` },
     })

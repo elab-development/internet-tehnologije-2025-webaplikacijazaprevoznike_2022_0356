@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import ProtectedLayout from '../components/ProtectedLayout';
 import Button from '../components/Button';
 import { useAuth } from '../hooks/useAuth';
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+import { apiFetch } from '../utils/apiClient';
 
 const SupplierPage = () => {
   const navigate = useNavigate();
@@ -20,7 +19,7 @@ const SupplierPage = () => {
 
   const loadCollaborations = useCallback(() => {
     if (!token) return Promise.resolve();
-    return fetch(`${API_BASE}/collaborations`, {
+    return apiFetch('/collaborations', {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => {
@@ -39,7 +38,7 @@ const SupplierPage = () => {
 
   const loadImporters = useCallback(() => {
     if (!token) return Promise.resolve();
-    return fetch(`${API_BASE}/collaborations/importers`, {
+    return apiFetch('/collaborations/importers', {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => {
@@ -71,7 +70,7 @@ const SupplierPage = () => {
       return;
     }
     setSubmitting(true);
-    fetch(`${API_BASE}/collaborations/request`, {
+    apiFetch('/collaborations/request', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

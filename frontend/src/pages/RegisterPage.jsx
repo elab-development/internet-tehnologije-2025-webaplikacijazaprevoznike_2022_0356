@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from '../components/Button';
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+import { apiFetch } from '../utils/apiClient';
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -29,7 +28,7 @@ const RegisterPage = () => {
     }
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/auth/register`, {
+      const res = await apiFetch('/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, name, role }),

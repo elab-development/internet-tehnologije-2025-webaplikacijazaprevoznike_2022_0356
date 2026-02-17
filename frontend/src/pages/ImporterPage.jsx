@@ -3,8 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import ProtectedLayout from '../components/ProtectedLayout';
 import Button from '../components/Button';
 import { useAuth } from '../hooks/useAuth';
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+import { apiFetch } from '../utils/apiClient';
 
 const ImporterPage = () => {
   const navigate = useNavigate();
@@ -25,7 +24,7 @@ const ImporterPage = () => {
 
   const loadCollaborations = useCallback(() => {
     if (!token) return Promise.resolve();
-    return fetch(`${API_BASE}/collaborations`, {
+    return apiFetch('/collaborations', {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => {
@@ -44,7 +43,7 @@ const ImporterPage = () => {
 
   const loadContainers = useCallback(() => {
     if (!token) return;
-    return fetch(`${API_BASE}/containers`, {
+    return apiFetch('/containers', {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => {
@@ -78,7 +77,7 @@ const ImporterPage = () => {
 
   const handleApproveCollab = (id) => {
     setActingId(id);
-    fetch(`${API_BASE}/collaborations/${id}/approve`, {
+    apiFetch(`/collaborations/${id}/approve`, {
       method: 'PATCH',
       headers: { Authorization: `Bearer ${token}` },
     })
@@ -93,7 +92,7 @@ const ImporterPage = () => {
   const handleRejectCollab = (id) => {
     if (!window.confirm('Reject this collaboration request?')) return;
     setActingId(id);
-    fetch(`${API_BASE}/collaborations/${id}/reject`, {
+    apiFetch(`/collaborations/${id}/reject`, {
       method: 'PATCH',
       headers: { Authorization: `Bearer ${token}` },
     })
@@ -143,7 +142,7 @@ const ImporterPage = () => {
       return;
     }
     setFormSubmitting(true);
-    fetch(`${API_BASE}/containers`, {
+    apiFetch('/containers', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -164,7 +163,7 @@ const ImporterPage = () => {
   };
 
   const loadDetail = (id) => {
-    fetch(`${API_BASE}/containers/${id}`, {
+    apiFetch(`/containers/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => {
@@ -177,7 +176,7 @@ const ImporterPage = () => {
 
   const handleDelete = (container) => {
     if (!window.confirm(`Delete container "${container.name}"? This will remove all items inside.`)) return;
-    fetch(`${API_BASE}/containers/${container.id}`, {
+    apiFetch(`/containers/${container.id}`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${token}` },
     })
