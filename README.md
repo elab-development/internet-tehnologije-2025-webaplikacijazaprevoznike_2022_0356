@@ -1,14 +1,38 @@
 # B2B Platform (Uvoznici)
 
-Web aplikacija za B2B saradnju (suppliers, importers, admin). Backend (Node/Express, Prisma, PostgreSQL), frontend (React/Vite).
+Web aplikacija za B2B saradnju između dobavljača i uvoznika. Supplieri nude proizvode, importeri kreiraju kontejnere i dodaju proizvode od odobrenih dobavljača. Administratorska uloga omogućava pregled sistema.
+
+## Uloge
+
+| Uloga | Opis |
+|-------|------|
+| **Admin** | Pregled svih saradnji (supplier ↔ importer). Upravljanje kategorijama. |
+| **Supplier** | Dodavanje proizvoda, slanje zahteva za saradnju importerima. |
+| **Importer** | Prihvatanje/odbijanje zahteva za saradnju, pregled proizvoda od odobrenih suppliera, kreiranje kontejnera i dodavanje proizvoda u njih. |
+
+**Tok saradnje:** Supplier šalje zahtev importeru → Importer odobrava ili odbija → Posle odobrenja, importer vidi proizvode tog suppliera i može da ih dodaje u kontejnere.
 
 ---
 
-## Dockerization
+## Tech stack
 
-Aplikacija se može pokrenuti kao kompletan stack pomoću Docker Compose.
+| Sloj | Tehnologije |
+|------|-------------|
+| **Frontend** | React 19, Vite 5, React Router |
+| **Backend** | Node.js, Express 5 |
+| **Baza** | PostgreSQL 16, Prisma ORM |
+| **Auth** | JWT, bcrypt |
+| **Deploy** | Docker, Docker Compose |
 
-### Kako pokrenuti
+---
+
+## Pokretanje uz Docker
+
+### Preduslov
+
+- [Docker](https://docs.docker.com/get-docker/) i [Docker Compose](https://docs.docker.com/compose/install/)
+
+### Komanda
 
 Iz root foldera projekta:
 
@@ -16,93 +40,201 @@ Iz root foldera projekta:
 docker compose up --build
 ```
 
-Prvi put će se izgraditi sve slike; zatim se podižu svi servisi. Za pozadinsko izvršavanje koristite `docker compose up --build -d`.
+Za pozadinsko izvršavanje:
 
-### Servisi
+```bash
+docker compose up --build -d
+```
 
-| Servis     | Opis                          | Port na hostu |
-|-----------|---------------------------------|----------------|
-| **postgres** | PostgreSQL 16 baza (korisnici, proizvodi, kategorije, kontejneri, saradnje) | `5432` |
-| **backend**  | Node/Express API (auth, products, categories, collaborations, containers, compare) | `4000` |
-| **frontend** | React (Vite) build serviran preko nginx-a | `3000` |
+### Servisi i URL-ovi
 
-- Backend zavisi od postgres-a (čeka da baza bude spremna pre starta).
-- Frontend zavisi od backend-a i pri build-u je podešen da API zove na `http://localhost:4000`.
+| Servis | Port | URL |
+|--------|------|-----|
+| **Frontend** | 3000 | http://localhost:3000 |
+| **Backend API** | 4000 | http://localhost:4000 |
+| **Swagger (API dokumentacija)** | 4000 | http://localhost:4000/api-docs |
+| **PostgreSQL** | 5432 | localhost:5432 (korisnik: `app`, baza: `uvoznici`) |
 
-### Pristup aplikaciji
+---
 
-- **Aplikacija (UI):** http://localhost:3000  
-- **API:** http://localhost:4000  
-- **Baza:** `localhost:5432` (korisnik `app`, baza `uvoznici`)
+## Pokretanje lokalno (bez Dockera)
 
-### Screenshot (opciono)
+### Preduslov
 
-<!-- TODO: Dodaj screenshot: terminal sa `docker compose up --build` ili Docker Desktop sa tri pokrenuta kontejnera -->
-*Caption: Stack pokrenut sa `docker compose up --build` – postgres, backend i frontend kontejneri.*
+- Node.js 18+  
+- PostgreSQL 16 (na `localhost:5432` ili prilagoditi `DATABASE_URL`)
+
+### 1. Baza
+
+PostgreSQL mora da radi sa bazom `uvoznici`. Kreiraj bazu i korisnika ako ne postoje (npr. korisnik `app`, lozinka `app`).
+
+Primeni Prisma migracije:
+
+```bash
+cd backend
+npx prisma migrate deploy
+```
+
+### 2. Backend
+
+```bash
+cd backend
+npm install
+```
+
+Kreiraj fajl `.env` u `backend/` (ili kopiraj iz `.env.example` ako postoji):
+
+```env
+DATABASE_URL=postgresql://app:app@localhost:5432/uvoznici
+JWT_SECRET=your-secret-key-change-this
+PORT=4000
+FRONTEND_URL=http://localhost:5173
+```
+
+Pokreni:
+
+```bash
+npm run dev
+```
+
+ili za produkciju:
+
+```bash
+npm start
+```
+
+Backend radi na http://localhost:4000.
+
+### 3. Frontend
+
+U novom terminalu:
+
+```bash
+cd frontend
+npm install
+```
+
+Opciono, kreiraj `.env` ako želiš da promeniš API URL:
+
+```env
+VITE_API_URL=http://localhost:4000
+```
+
+Pokreni dev server:
+
+```bash
+npm run dev
+```
+
+Vite će servirati aplikaciju na http://localhost:5173 (ili drugi port ako je 5173 zauzet).
+
+---
+
+## Environment varijable
+
+### Backend (`backend/.env`)
+
+| Varijabla | Opis | Primer |
+|-----------|------|--------|
+| `DATABASE_URL` | PostgreSQL connection string | `postgresql://app:app@localhost:5432/uvoznici` |
+| `JWT_SECRET` | Tajni kljuch za JWT potpis | `neki-dugacak-tajni-kljuc` |
+| `PORT` | Port na kome sluša API | `4000` |
+| `FRONTEND_URL` | CORS origin za frontend | `http://localhost:5173` ili `http://localhost:3000` |
+
+### Frontend (`frontend/.env`)
+
+| Varijabla | Opis | Primer |
+|-----------|------|--------|
+| `VITE_API_URL` | Base URL backend API-ja | `http://localhost:4000` |
+
+**Napomena:** U Dockeru `VITE_API_URL` se prosleđuje kao build arg (`http://localhost:4000`), jer se frontend iz browsera direktno obraća hostu.
 
 ---
 
 ## Swagger (API dokumentacija)
 
-API je dokumentovan u OpenAPI 3 formatu i dostupan preko Swagger UI.
-
-### Gde pristupiti
-
 - **URL:** http://localhost:4000/api-docs  
-- Backend mora da radi (lokalno ili u Dockeru na portu 4000).
+- Backend mora da radi da bi stranica bila dostupna.
 
-### Šta je dokumentovano
+Za zaštićene rute:
 
-U Swagger UI prikazani su svi glavni endpointi, uključujući:
+1. Uloguj se preko `POST /auth/login`.  
+2. Kopiraj `token` iz odgovora.  
+3. U Swagger UI klikni **Authorize** → unesi token (samo vrednost, bez prefiksa "Bearer").  
+4. Nakon toga možeš pozivati sve zaštićene endpoint-e.
 
-- **Auth:** `POST /auth/register`, `POST /auth/login`, `POST /auth/logout`
-- **Categories:** `GET /categories`, `POST /categories`, `DELETE /categories/:id`
-- **Products:** `GET /products`, `POST /products`, `PATCH /products/:id`, `DELETE /products/:id`
-- **Collaborations:** rute za saradnju supplier–importer
-- **Containers:** kreiranje kontejnera, dodavanje stavki, pregled
-- **Importer:** `GET /importer/products`
-- **Compare:** upoređivanje proizvoda po kategoriji
+---
 
-Za zaštićene rute u opisu je navedeno da zahtevaju Bearer JWT.
+## Test podaci
 
-### Autorizacija Bearer tokenom u Swagger UI
+U folderu `backend/prisma/` nalaze se SQL skripte za seed podatke:
 
-1. Ulogujte se preko `POST /auth/login` (email + password) i u odgovoru kopirajte vrednost polja `token`.
-2. U Swagger UI kliknite **Authorize** (gore desno).
-3. U polje za **Bearer** nalepite token (samo vrednost, bez reči "Bearer").
-4. Kliknite **Authorize**, zatim **Close**. Svi sledeći pozivi ka zaštićenim endpointima će u headeru slati `Authorization: Bearer <token>`.
+- `seed-po-tabelama/` – skripte po tabelama (01-category, 02-product, 03-collaboration, 04-container, 05-container-item). Redom pokrenuti u pgAdminu ili `psql`.  
+- `seed-samo-podaci.sql` – ceo seed (briše sve osim User, pa ubacuje kategorije, proizvode, saradnje, kontejnere, stavke).  
+- `seed-za-testiranje.sql` – kompletni seed uklljučujući korisnike (lozinka za sve: `password`).
 
-### Screenshot (opciono)
+Za lokalnu bazu ili prvu inicijalizaciju Docker baze, prvo pokreni Prisma migracije, pa zatim željenu seed skriptu.
 
-<!-- TODO: Dodaj screenshot: Swagger UI na /api-docs sa otvorenim Authorize dijalogom -->
-*Caption: Swagger UI na /api-docs – Authorize dijalog za unos JWT tokena.*
+---
 
-### Kratak izvod koda – Swagger setup i Bearer shema
+## Troubleshooting
 
-API dokumentacija se uključuje u Express aplikaciju preko `swagger-jsdoc` (čita JSDoc iz ruta) i `swagger-ui-express` (servira UI). Bearer JWT shema je definisana u OpenAPI konfiguraciji i koristi se na zaštićenim rutama:
+### Port već u upotrebi
 
-```javascript
-// backend/app.js – mount Swagger UI
-const swaggerSpec = swaggerJsdoc({
-  definition: openapiConfig,
-  apis: [path.join(__dirname, 'src/routes/*.js')],
-});
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+Ako neki od portova (3000, 4000, 5432) već koristi drugi proces:
+
+- Za Docker: izmeni mapiranje u `docker-compose.yml`, npr. `"3001:80"` umesto `"3000:80"` za frontend.  
+- Za lokalno: pokreni backend/frontend na drugom portu ili zaustavi proces koji drži port.
+
+### Konflikt imena kontejnera
+
+Ako dobiješ grešku tipa `container name already in use`:
+
+```bash
+docker compose down
+docker compose up --build
 ```
 
-```javascript
-// backend/openapi.config.js – Bearer auth shema za Swagger
-components: {
-  securitySchemes: {
-    bearerAuth: {
-      type: 'http',
-      scheme: 'bearer',
-      bearerFormat: 'JWT',
-      description: 'JWT from POST /auth/login',
-    },
-  },
-  // ...
-}
+Ili ručno ukloni kontejnere:
+
+```bash
+docker rm -f uvoznici_db uvoznici_backend uvoznici_frontend
 ```
 
-Zaštita ruta u kodu vrši se u middleware-u `auth`: proverava se header `Authorization: Bearer <token>`, JWT se verifikuje pomoću `JWT_SECRET`, a dekodirani `id` i `role` stavljaju se u `req.user` za dalju autorizaciju (npr. po ulozi).
+### Backend ne vidi bazu u Dockeru
+
+U Docker Compose-u backend koristi hostname `postgres` za bazu (servis), ne `localhost`:
+
+```yaml
+DATABASE_URL: postgresql://app:app@postgres:5432/uvoznici
+```
+
+Lokalno koristi `localhost`:
+
+```
+DATABASE_URL=postgresql://app:app@localhost:5432/uvoznici
+```
+
+### Migracije nisu primenjene
+
+Posle prvog pokretanja Docker stack-a, ako baza nema tabele:
+
+```bash
+docker compose exec backend npx prisma migrate deploy
+```
+
+Ili ručno pokreni migracije iz `backend/prisma/migrations/` nad Docker bazu (host: localhost, port: 5432).
+
+### CORS greške
+
+Proveri da `FRONTEND_URL` u backend `.env` odgovara URL-u na kome frontend radi (npr. `http://localhost:5173` za Vite dev, `http://localhost:3000` za Docker frontend).
+
+### JWT_SECRET nije setovan
+
+Ako login vraća 500 ili "Server configuration error", backendu nedostaje `JWT_SECRET`. Dodaj ga u `backend/.env`.
+
+---
+
+## Licenca
+
+ISC
