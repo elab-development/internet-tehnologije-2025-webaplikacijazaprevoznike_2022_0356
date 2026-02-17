@@ -16,6 +16,7 @@ const NavBar = ({ userRole }) => {
       { path: '/products', label: 'Products' },
       { path: '/admin', label: 'Admin' },
       { path: '/map', label: 'Map' },
+      { path: '/stats', label: 'Statistics' },
     ],
     supplier: [
       { path: '/dashboard', label: 'Dashboard' },
