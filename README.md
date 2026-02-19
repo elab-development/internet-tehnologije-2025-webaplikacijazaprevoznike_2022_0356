@@ -272,13 +272,13 @@ Ako login vraća 500 ili "Server configuration error", backendu nedostaje `JWT_S
 ## Git overwiev
 
 Glavne grane:
-* main - stabilna verzija u produkciji
-* Develop - integracija ostalih granova u jednu
+* main - Primarna grana koja sadrži poslednju stabilnu i testiranu verziju aplikacije spremnu za produkciju.
+* Develop - Integraciona grana. Služi za spajanje svih novih funkcionalnosti pre finalnog testiranja i prebacivanja u main.
   
 Ostale grane:
-* Backend - backend funkcionalnosti
-* Frontend - implementacij forntenda
-* feature/map - implementacija GoogleMap API-ja
-* feature/visualization - implementacija vizuelizacije podataka
+* Backend - Grana fokusirana na razvoj API endpoint-a, autentifikacije, rada sa bazom podataka i poslovne logike.
+* Frontend - Specifična grana namenjena razvoju korisničkog interfejsa, React komponenti i klijentske logike.
+* feature/map - Implementira Google Maps stranicu koja prikazuje sve aktive suppliera i importere na mapi Srbije sa markerima i info prozorima.
+* feature/visualization - Dodaje admin statističku stranicu sa grafikonima (Recharts) koji vizuelno prikazuju saradnje po statusu, proizvode po kategorijama i osnovne totals vrednosti sistema.
 
 
