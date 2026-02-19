@@ -269,6 +269,16 @@ Ako login vraća 500 ili "Server configuration error", backendu nedostaje `JWT_S
 
 ---
 
-## Licenca
+## Git overwiev
 
-ISC
+Glavne grane:
+* main - stabilna verzija u produkciji
+* Develop - integracija ostalih granova u jednu
+  
+Ostale grane:
+* Backend - backend funkcionalnosti
+* Frontend - implementacij forntenda
+* feature/map - implementacija GoogleMap API-ja
+* feature/visualization - implementacija vizuelizacije podataka
+
+
