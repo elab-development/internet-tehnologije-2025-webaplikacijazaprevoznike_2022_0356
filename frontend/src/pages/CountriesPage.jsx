@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import ProtectedLayout from '../components/ProtectedLayout';
 import { useAuth } from '../hooks/useAuth';
-import { apiFetch } from '../utils/apiClient';
 
 export default function CountriesPage() {
   const { token } = useAuth(); // not strictly needed but keeps pattern
@@ -10,13 +9,34 @@ export default function CountriesPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    apiFetch('/api/countries')
+    // Call REST Countries API directly from the browser, limited fields to avoid 400
+    fetch('https://restcountries.com/v3.1/all?fields=cca2,name,capital,region,timezones,currencies')
       .then((res) => {
         if (!res.ok) throw new Error('Failed to load countries');
         return res.json();
       })
-      .then((data) => {
-        setCountries(Array.isArray(data) ? data : []);
+      .then((raw) => {
+        const mapped = (raw || [])
+          .filter((c) => c && c.cca2 && c.name && c.name.common)
+          .map((c) => {
+            const currencies = c.currencies
+              ? Object.entries(c.currencies).map(([code, val]) => ({
+                  code,
+                  name: val.name,
+                  symbol: val.symbol ?? null,
+                }))
+              : [];
+            return {
+              code: c.cca2,
+              name: c.name.common,
+              capital: Array.isArray(c.capital) && c.capital.length ? c.capital[0] : null,
+              timezones: Array.isArray(c.timezones) ? c.timezones : [],
+              region: c.region ?? null,
+              currencies,
+            };
+          })
+          .sort((a, b) => a.name.localeCompare(b.name));
+        setCountries(mapped);
         setError('');
       })
       .catch((err) => {

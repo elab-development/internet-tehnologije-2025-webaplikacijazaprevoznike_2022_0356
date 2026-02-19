@@ -2,11 +2,13 @@
 
 Web aplikacija za B2B saradnju između dobavljača i uvoznika. Supplieri nude proizvode, importeri kreiraju kontejnere i dodaju proizvode od odobrenih dobavljača. Administratorska uloga omogućava pregled sistema.
 
+---
+
 ## Uloge
 
 | Uloga | Opis |
 |-------|------|
-| **Admin** | Pregled svih saradnji (supplier ↔ importer). Upravljanje kategorijama. |
+| **Admin** | Pregled svih saradnji (supplier ↔ importer). Upravljanje kategorijama. Pregled statistike i vizuelizacija. |
 | **Supplier** | Dodavanje proizvoda, slanje zahteva za saradnju importerima. |
 | **Importer** | Prihvatanje/odbijanje zahteva za saradnju, pregled proizvoda od odobrenih suppliera, kreiranje kontejnera i dodavanje proizvoda u njih. |
 
@@ -18,11 +20,35 @@ Web aplikacija za B2B saradnju između dobavljača i uvoznika. Supplieri nude pr
 
 | Sloj | Tehnologije |
 |------|-------------|
-| **Frontend** | React 19, Vite 5, React Router |
+| **Frontend** | React 19, Vite 5, React Router, Recharts |
 | **Backend** | Node.js, Express 5 |
 | **Baza** | PostgreSQL 16, Prisma ORM |
 | **Auth** | JWT, bcrypt |
 | **Deploy** | Docker, Docker Compose |
+
+---
+
+## Proširenja i dodatne funkcionalnosti
+
+- **Google Maps (Map stranica)**  
+  - Lokacije korisnika (SUPPLIER/IMPORTER) na mapi Srbije, sa markerima i info prozorima (ime, email, uloga).
+  - Koordinate se generišu SQL skriptom i čitaju kroz backend endpoint `/api/map/locations`.
+
+- **REST Countries (Countries stranica)**  
+  - Stranica **Countries** prikazuje listu država korišćenjem javnog API-ja [`https://restcountries.com`](https://restcountries.com/).  
+  - Prikazuju se kod države, naziv, region, glavni grad, vremenske zone i valute.
+
+- **Statistika i vizuelizacija (Stats stranica, samo Admin)**  
+  - Backend endpoint `/api/stats` agregira broj saradnji po statusu, broj proizvoda po kategorijama i osnovne total vrednosti (users, products, containers, collaborations).  
+  - Frontend koristi Recharts za prikaz bar/pie grafika i kartica sa sumarnim vrednostima.
+
+- **Admin panel – kategorije**  
+  - Admin može da pregleda, dodaje i briše kategorije (uz proveru da se ne briše kategorija koju koriste proizvodi).
+
+- **Bezbednost (XSS / CSRF / IDOR)**  
+  - **XSS:** middleware `sanitizeBody` čisti HTML tagove iz svih string polja u `req.body`.  
+  - **CSRF:** state-changing zahtevi (POST/PUT/PATCH/DELETE) očekuju `X-CSRF-Token` header; frontend ga automatski šalje preko helpera `apiFetch`.  
+  - **IDOR:** za resurse vezane za korisnika postoji provera vlasništva u kontrolerima (container, product, collaboration).
 
 ---
 
